@@ -72,3 +72,19 @@ def test_duo_chat_retrieves_relevant_context_without_external_llm(tmp_path: Path
     assert result["feature"] == "duo_chat"
     assert result["matches"]
     assert result["matches"][0]["path"] == "service.py"
+
+
+def test_summary_generation_features_cover_enterprise_beta_surface(tmp_path: Path) -> None:
+    fw = ForgeWise(_sample_repo(tmp_path))
+
+    commit = fw.merge_commit_message_generation()
+    review_summary = fw.code_review_summary()
+    issue = fw.issue_description_generation("unsafe command execution in billing service")
+
+    assert commit["feature"] == "merge_commit_message_generation"
+    assert commit["message"].startswith("chore:")
+    assert review_summary["feature"] == "code_review_summary"
+    assert review_summary["total_findings"] >= 3
+    assert issue["feature"] == "issue_description_generation"
+    assert "unsafe command execution" in issue["title"]
+    assert "Acceptance Criteria" in issue["body"]

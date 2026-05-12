@@ -46,6 +46,17 @@ def list_tools() -> list[dict[str, Any]]:
             {"base": _string_schema("비교 기준 ref")},
         ),
         _tool(
+            "merge_commit_message_generation",
+            "git diff 통계를 merge commit message로 바꿉니다.",
+            {"base": _string_schema("비교 기준 ref")},
+        ),
+        _tool("code_review_summary", "코드 리뷰 finding을 요약합니다.", {}),
+        _tool(
+            "issue_description_generation",
+            "이슈 설명 초안을 생성합니다.",
+            {"prompt": _string_schema("이슈 프롬프트")},
+        ),
+        _tool(
             "discussion_summary",
             "토론 텍스트를 요약합니다.",
             {"text": _string_schema("토론 본문")},
@@ -130,6 +141,13 @@ def _handlers() -> dict[str, ToolHandler]:
         ),
         "merge_request_summary": lambda fw, args: fw.merge_request_summary(
             str(args.get("base", "HEAD~1"))
+        ),
+        "merge_commit_message_generation": lambda fw, args: fw.merge_commit_message_generation(
+            str(args.get("base", "HEAD~1"))
+        ),
+        "code_review_summary": lambda fw, args: fw.code_review_summary(),
+        "issue_description_generation": lambda fw, args: fw.issue_description_generation(
+            str(args["prompt"])
         ),
         "discussion_summary": lambda fw, args: fw.discussion_summary(str(args["text"])),
         "sdlc_trends": lambda fw, args: fw.sdlc_trends(),

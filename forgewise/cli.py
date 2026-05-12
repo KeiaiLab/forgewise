@@ -42,11 +42,18 @@ def _parser() -> argparse.ArgumentParser:
     mr = sub.add_parser("mr-summary")
     mr.add_argument("--base", default="HEAD~1")
 
+    merge_commit = sub.add_parser("merge-commit-message")
+    merge_commit.add_argument("--base", default="HEAD~1")
+
+    issue = sub.add_parser("issue-description")
+    issue.add_argument("prompt")
+
     discussion = sub.add_parser("discussion-summary")
     discussion.add_argument("text")
 
     sub.add_parser("suggestions")
     sub.add_parser("review")
+    sub.add_parser("review-summary")
     sub.add_parser("check")
     sub.add_parser("trends")
     return parser
@@ -76,6 +83,12 @@ def _dispatch(fw: ForgeWise, args: argparse.Namespace) -> dict[str, object]:
         return fw.root_cause_analysis(str(args.log))
     if command == "mr-summary":
         return fw.merge_request_summary(str(args.base))
+    if command == "merge-commit-message":
+        return fw.merge_commit_message_generation(str(args.base))
+    if command == "review-summary":
+        return fw.code_review_summary()
+    if command == "issue-description":
+        return fw.issue_description_generation(str(args.prompt))
     if command == "discussion-summary":
         return fw.discussion_summary(str(args.text))
     if command == "trends":

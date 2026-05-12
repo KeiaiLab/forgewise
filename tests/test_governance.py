@@ -13,9 +13,14 @@ def test_product_docs_capture_name_feature_map_and_references() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     design = (ROOT / "docs" / "design.md").read_text(encoding="utf-8")
     references = (ROOT / "docs" / "references.md").read_text(encoding="utf-8")
+    audit = (ROOT / "docs" / "completion-audit.md").read_text(encoding="utf-8")
 
     assert "ForgeWise" in readme
     assert "GitLab Duo" in design
     assert "code_suggestions" in design
+    assert "merge_commit_message_generation" in design
+    assert "issue_description_generation" in design
     assert "https://docs.gitlab.com/user/gitlab_duo/feature_summary/" in references
     assert "https://modelcontextprotocol.io/specification/2025-06-18/server/tools" in references
+    assert "Prompt-to-artifact checklist" in audit
+    assert "make check" in audit

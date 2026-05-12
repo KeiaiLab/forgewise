@@ -23,6 +23,9 @@ def test_mcp_lists_gitlab_duo_mapped_tools() -> None:
         "merge_request_summary",
         "discussion_summary",
         "sdlc_trends",
+        "merge_commit_message_generation",
+        "code_review_summary",
+        "issue_description_generation",
     } <= tool_names
 
 

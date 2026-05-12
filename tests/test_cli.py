@@ -30,3 +30,13 @@ def test_cli_check_runs_review_and_security(
     captured = capsys.readouterr()
     assert code == 1
     assert "python-eval" in captured.out
+
+
+def test_cli_issue_description_prints_json(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    code = main(["--repo", str(tmp_path), "issue-description", "login failure after deploy"])
+
+    captured = capsys.readouterr()
+    assert code == 0
+    assert '"feature": "issue_description_generation"' in captured.out

@@ -34,6 +34,9 @@ CLI 명령은 `forgewise`, MCP 서버 명령은 `forgewise-mcp`입니다.
 | `merge_request_summary` | MR 요약 |
 | `discussion_summary` | 토론 요약 |
 | `sdlc_trends` | SDLC 품질 추세 |
+| `merge_commit_message_generation` | Merge commit message 생성 |
+| `code_review_summary` | 코드 리뷰 요약 |
+| `issue_description_generation` | 이슈 설명 생성 |
 
 ## 설치
 
@@ -54,6 +57,7 @@ uv run forgewise --repo . review
 forgewise --repo . explain forgewise/features.py
 forgewise --repo . vuln-explain forgewise/security.py
 forgewise --repo . test-generate forgewise/features.py
+forgewise --repo . issue-description "login failure after deploy"
 forgewise --repo . check
 ```
 

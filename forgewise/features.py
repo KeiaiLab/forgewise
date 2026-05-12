@@ -112,6 +112,50 @@ class ForgeWise:
         diff = _git_diff(self.repo.root, base)
         return {"feature": "merge_request_summary", "base": base, "summary": _summarize_diff(diff)}
 
+    def merge_commit_message_generation(self, base: str = "HEAD~1") -> dict[str, Any]:
+        diff = _git_diff(self.repo.root, base)
+        summary = _summarize_diff(diff)
+        files = summary["files"]
+        noun = f"{len(files)} files" if files else "repository metadata"
+        message = f"chore: update {noun}"
+        return {
+            "feature": "merge_commit_message_generation",
+            "base": base,
+            "message": message,
+            "summary": summary,
+        }
+
+    def code_review_summary(self) -> dict[str, Any]:
+        review = self.code_review()
+        counts: dict[str, int] = {}
+        for finding in review["findings"]:
+            severity = str(finding.get("severity", "info"))
+            counts[severity] = counts.get(severity, 0) + 1
+        total = len(review["findings"])
+        return {
+            "feature": "code_review_summary",
+            "status": review["status"],
+            "total_findings": total,
+            "by_severity": dict(sorted(counts.items())),
+            "headline": "No review findings" if total == 0 else f"{total} review findings",
+        }
+
+    def issue_description_generation(self, prompt: str) -> dict[str, Any]:
+        title = prompt.strip().rstrip(".") or "untitled issue"
+        body = "\n".join(
+            [
+                f"## Summary\n{title}",
+                "",
+                "## Context\nGenerated locally by ForgeWise from the supplied issue prompt.",
+                "",
+                "## Acceptance Criteria",
+                "- Reproduce or confirm the reported behavior.",
+                "- Add or update tests that cover the fix.",
+                "- Run the local project gate before merge.",
+            ]
+        )
+        return {"feature": "issue_description_generation", "title": title, "body": body}
+
     def discussion_summary(self, text: str) -> dict[str, Any]:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         return {

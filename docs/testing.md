@@ -18,5 +18,6 @@ make check
 - code explanation, local chat retrieval, test generation
 - vulnerability explanation/resolution
 - MCP tool list와 `tools/call` structuredContent
+- Merge commit message / code review summary / issue description generation
 - CLI JSON 출력과 `check` 실패 exit code
 - GitHub Actions 금지와 제품 문서 존재
