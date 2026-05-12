@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "forgewise"
+version = "0.1.0"
+description = "Open-source MCP-native developer intelligence for code forges"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "keiailab" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0",
+    "ruff>=0.15",
+    "mypy>=2.0",
+]
+
+[project.scripts]
+forgewise = "forgewise.cli:main"
+forgewise-mcp = "forgewise.mcp_server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["forgewise"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q --strict-markers"
