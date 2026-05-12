@@ -35,11 +35,17 @@ def test_code_explanation_summarizes_symbols_and_slice(tmp_path: Path) -> None:
     fw = ForgeWise(_sample_repo(tmp_path))
 
     result = fw.code_explanation("service.py", start=5, end=7)
+    ide_result = fw.code_explanation_ide("service.py", start=5, end=7)
+    ui_result = fw.code_explanation_gitlab_ui("service.py", start=5, end=7)
 
     assert result["feature"] == "code_explanation"
     assert "BillingService" in result["symbols"]["classes"]
     assert "total" in result["symbols"]["functions"]
     assert result["slice"]["start"] == 5
+    assert ide_result["feature"] == "code_explanation_ide"
+    assert ide_result["surface"] == "ide"
+    assert ui_result["feature"] == "code_explanation_gitlab_ui"
+    assert ui_result["surface"] == "gitlab_ui"
 
 
 def test_test_generation_creates_pytest_skeletons_for_python_functions(tmp_path: Path) -> None:

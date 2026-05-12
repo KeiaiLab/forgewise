@@ -29,6 +29,12 @@ def _parser() -> argparse.ArgumentParser:
     explain.add_argument("--start", type=int)
     explain.add_argument("--end", type=int)
 
+    for name in ("explain-ide", "explain-ui"):
+        command = sub.add_parser(name, help="분리된 Duo 코드 설명")
+        command.add_argument("path")
+        command.add_argument("--start", type=int)
+        command.add_argument("--end", type=int)
+
     for name in ("refactor", "fix", "test-generate", "vuln-explain", "vuln-resolve"):
         command = sub.add_parser(name)
         command.add_argument("path")
@@ -56,6 +62,7 @@ def _parser() -> argparse.ArgumentParser:
     sub.add_parser("review-summary")
     sub.add_parser("check")
     sub.add_parser("trends")
+    sub.add_parser("mcp-version")
     return parser
 
 
@@ -63,6 +70,10 @@ def _dispatch(fw: ForgeWise, args: argparse.Namespace) -> dict[str, object]:
     command = str(args.command)
     if command == "explain":
         return fw.code_explanation(str(args.path), args.start, args.end)
+    if command == "explain-ide":
+        return fw.code_explanation_ide(str(args.path), args.start, args.end)
+    if command == "explain-ui":
+        return fw.code_explanation_gitlab_ui(str(args.path), args.start, args.end)
     if command == "refactor":
         return fw.refactor_code(str(args.path))
     if command == "fix":
@@ -93,6 +104,14 @@ def _dispatch(fw: ForgeWise, args: argparse.Namespace) -> dict[str, object]:
         return fw.discussion_summary(str(args.text))
     if command == "trends":
         return fw.sdlc_trends()
+    if command == "mcp-version":
+        return {
+            "feature": "get_mcp_server_version",
+            "name": "forgewise",
+            "version": "0.2.0",
+            "protocols": ["2025-03-26", "2025-06-18"],
+            "transports": ["stdio", "streamable-http"],
+        }
     raise SystemExit(f"unknown command: {command}")
 
 
