@@ -10,7 +10,12 @@ requires-python = ">=3.11"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 authors = [{ name = "keiailab" }]
-dependencies = []
+dependencies = [
+    "authlib>=1.6",
+    "fastapi>=0.128",
+    "httpx>=0.28",
+    "uvicorn>=0.38",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -22,6 +27,7 @@ dev = [
 [project.scripts]
 forgewise = "forgewise.cli:main"
 forgewise-mcp = "forgewise.mcp_server:main"
+forgewise-http = "forgewise.http_server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["forgewise"]

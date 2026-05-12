@@ -24,10 +24,31 @@ class ForgeWise:
     def code_explanation(
         self, path: str, start: int | None = None, end: int | None = None
     ) -> dict[str, Any]:
+        return self._code_explanation("code_explanation", "legacy", path, start, end)
+
+    def code_explanation_ide(
+        self, path: str, start: int | None = None, end: int | None = None
+    ) -> dict[str, Any]:
+        return self._code_explanation("code_explanation_ide", "ide", path, start, end)
+
+    def code_explanation_gitlab_ui(
+        self, path: str, start: int | None = None, end: int | None = None
+    ) -> dict[str, Any]:
+        return self._code_explanation("code_explanation_gitlab_ui", "gitlab_ui", path, start, end)
+
+    def _code_explanation(
+        self,
+        feature: str,
+        surface: str,
+        path: str,
+        start: int | None = None,
+        end: int | None = None,
+    ) -> dict[str, Any]:
         text = self.repo.read_text(path)
         selected = line_slice(text, start, end)
         return {
-            "feature": "code_explanation",
+            "feature": feature,
+            "surface": surface,
             "path": path,
             "slice": {
                 "start": 1 if start is None else start,
