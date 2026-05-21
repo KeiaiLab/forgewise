@@ -1,6 +1,6 @@
 # ForgeWise
 
-> [English](README.md) | [한국어](README.ko.md) | **日本語** | [中文](README.zh.md) (placeholder)
+> [English](README.md) | [한국어](README.ko.md) | **日本語** | [中文](README.zh.md)
 
 ForgeWise は、GitLab Duo Enterprise クラスの開発支援機能を、オープンソース、ローカル実行可能、MCP-native のツール表面として実装する `keiailab` プロジェクトです。
 
