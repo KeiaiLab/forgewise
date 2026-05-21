@@ -1,6 +1,8 @@
-# Configuration
+# 설정 (Configuration)
 
-> **English** | [한국어](configuration.ko.md) | [日本語](configuration.ja.md) | [中文](configuration.zh.md)
+> ⚠️ This translation is AI-generated and pending native review. See [한국어 glossary](https://github.com/keiailab/operator-commons/blob/main/docs/i18n/glossary-ko.md) for terminology.
+
+> [English](configuration.md) | **한국어** | [日本語](configuration.ja.md) | [中文](configuration.zh.md)
 
 ForgeWise 의 운영 인터페이스 (MCP client 등록 / OAuth scope / GitLab 인증 /
 audit log / mutation gate) 를 정리한다. 환경 변수 표는 `docs/installation.md`
