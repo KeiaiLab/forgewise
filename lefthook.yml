@@ -1,0 +1,104 @@
+# lefthook.yml — forgewise Python 4 계층 게이트
+#
+# 출처: docs/specs/2026-05-21-forgewise-governance-and-ops-alignment-design.md §Phase 1
+# RFC-0002 (GHA 영구 금지) 정합. 모든 게이트는 로컬에서 실행.
+#
+# 우회 정책:
+# - 전체 우회: `LEFTHOOK=0 git commit ...` 또는 commit message 에 `[skip-hooks]`
+# - 개별 hook 우회: 각 hook 의 env 항목 (사유 PR / commit body 의무 기술)
+# - DCO 우회 (`DCO_OK=1`): 강력 비권장 — keiailab organization 표준 위배
+
+min_version: 1.5.0
+
+pre-commit:
+  parallel: true
+  commands:
+    py-lint:
+      glob: "*.py"
+      run: uv run ruff check --fix {staged_files}
+      stage_fixed: true
+    py-format:
+      glob: "*.py"
+      run: uv run ruff format --check {staged_files}
+    secrets:
+      # detect-secrets baseline 미생성 시 graceful skip (Phase 1 정책)
+      # baseline 생성: `uv run detect-secrets scan > .secrets.baseline`
+      run: |
+        if [ -z "{staged_files}" ]; then
+          echo "secrets: no staged files"
+          exit 0
+        fi
+        if [ ! -f .secrets.baseline ]; then
+          echo "secrets: .secrets.baseline 미생성 — graceful skip (baseline 생성 권장)"
+          exit 0
+        fi
+        if ! command -v detect-secrets-hook >/dev/null 2>&1; then
+          echo "secrets: detect-secrets 미설치 — graceful skip (uv tool install detect-secrets 권장)"
+          exit 0
+        fi
+        detect-secrets-hook --baseline .secrets.baseline {staged_files}
+    md-lint:
+      glob: "*.md"
+      run: |
+        if ! command -v markdownlint-cli2 >/dev/null 2>&1; then
+          echo "md-lint: markdownlint-cli2 미설치 — graceful skip (npm i -g markdownlint-cli2 권장)"
+          exit 0
+        fi
+        markdownlint-cli2 {staged_files}
+
+commit-msg:
+  commands:
+    commitlint:
+      # Conventional Commits 검증 (self-implemented regex — commitlint 미의존)
+      # 양식: <type>(<scope>)?: <subject>
+      # type ∈ {feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert, spec}
+      run: |
+        msg_file="{1}"
+        # 첫 비주석 / 비공백 라인 검사
+        subject=$(grep -m1 -v '^#' "$msg_file" | head -n1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [ -z "$subject" ]; then
+          echo "commitlint: subject empty"
+          exit 1
+        fi
+        # Merge / Revert auto-generated 허용
+        case "$subject" in
+          Merge*|Revert*) exit 0 ;;
+        esac
+        pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|spec)(\([^)]+\))?: .+'
+        if ! echo "$subject" | grep -Eq "$pattern"; then
+          echo "commitlint: Conventional Commits 위배"
+          echo "  subject: $subject"
+          echo "  요구 양식: <type>(<scope>)?: <subject>"
+          echo "  type: feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|spec"
+          exit 1
+        fi
+    dco-signoff:
+      # DCO `Signed-off-by:` line 검증
+      # 우회: env DCO_OK=1 (사유 PR 본문 의무 기술 — keiailab 표준 위배)
+      run: |
+        if [ "$DCO_OK" = "1" ]; then
+          echo "dco-signoff: DCO_OK=1 — bypass (사유 PR 본문 의무 기술)"
+          exit 0
+        fi
+        msg_file="{1}"
+        if ! grep -Eq '^Signed-off-by: .+ <.+@.+>$' "$msg_file"; then
+          echo "dco-signoff: 'Signed-off-by:' line 부재"
+          echo "  추가 방법: git commit -s ..."
+          exit 1
+        fi
+
+pre-push:
+  parallel: false
+  commands:
+    py-typecheck:
+      run: uv run --python 3.11 --extra dev mypy --strict forgewise tests
+    py-test:
+      run: uv run --python 3.11 --extra dev python -m pytest -q
+    py-audit:
+      # pip-audit 미설치 graceful skip — 별 후속 (CONTRIBUTING.md 안내)
+      run: |
+        if ! command -v pip-audit >/dev/null 2>&1; then
+          echo "py-audit: pip-audit 미설치 — graceful skip (uv tool install pip-audit 권장)"
+          exit 0
+        fi
+        pip-audit

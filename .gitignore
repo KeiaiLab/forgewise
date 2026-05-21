@@ -7,3 +7,6 @@ __pycache__/
 .mypy_cache/
 .forgewise/
 .DS_Store
+# lefthook local override (개발자별 우회 — repo 미공유)
+.lefthook-local.yml
+# detect-secrets baseline 은 commit 대상 (allowlist SSOT) — ignore 하지 않음
