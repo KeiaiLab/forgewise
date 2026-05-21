@@ -1,6 +1,8 @@
-# Installation
+# 설치 (Installation)
 
-> **English** | [한국어](installation.ko.md) | [日本語](installation.ja.md) | [中文](installation.zh.md)
+> ⚠️ This translation is AI-generated and pending native review. See [한국어 glossary](https://github.com/keiailab/operator-commons/blob/main/docs/i18n/glossary-ko.md) for terminology.
+
+> [English](installation.md) | **한국어** | [日本語](installation.ja.md) | [中文](installation.zh.md)
 
 ForgeWise 는 Python 3.11+ 기반 MCP-native developer intelligence 서버다. 본 문서는
 설치 / 환경 설정 / 검증 / 트러블슈팅을 다룬다.

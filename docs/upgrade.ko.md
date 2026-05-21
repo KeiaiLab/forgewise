@@ -1,6 +1,8 @@
-# Upgrade Guide
+# 업그레이드 가이드 (Upgrade Guide)
 
-> **English** | [한국어](upgrade.ko.md) | [日本語](upgrade.ja.md) | [中文](upgrade.zh.md)
+> ⚠️ This translation is AI-generated and pending native review. See [한국어 glossary](https://github.com/keiailab/operator-commons/blob/main/docs/i18n/glossary-ko.md) for terminology.
+
+> [English](upgrade.md) | **한국어** | [日本語](upgrade.ja.md) | [中文](upgrade.zh.md)
 
 ForgeWise 의 버전 마이그레이션 가이드. SemVer 정책 + 향후 버전 호환성.
 

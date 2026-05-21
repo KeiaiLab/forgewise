@@ -1,6 +1,8 @@
-# API Reference — MCP tools
+# API 레퍼런스 — MCP tool
 
-> **English** | [한국어](api-reference.ko.md) | [日本語](api-reference.ja.md) | [中文](api-reference.zh.md)
+> ⚠️ This translation is AI-generated and pending native review. See [한국어 glossary](https://github.com/keiailab/operator-commons/blob/main/docs/i18n/glossary-ko.md) for terminology.
+
+> [English](api-reference.md) | **한국어** | [日本語](api-reference.ja.md) | [中文](api-reference.zh.md)
 
 ForgeWise 0.1.0 의 33 종 MCP tool 카탈로그. 모든 정보는 `forgewise/tools.py` 의
 `list_tool_definitions()` 가 SSOT. 본 문서는 *문서화 사본* 으로, 신규 tool 추가 /
