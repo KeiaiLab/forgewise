@@ -140,6 +140,15 @@ FORGEWISE_LIVE_GITLAB_TOKEN=... FORGEWISE_LIVE_PROJECT_ID=group/project make smo
 
 token と project が存在しない場合、smoke は skip として終了します。
 
+## 貢献とガバナンス
+
+- **貢献ガイド** — [CONTRIBUTING.md](CONTRIBUTING.md): 開発環境の設定、Conventional Commits、DCO 署名、PR フロー。
+- **セキュリティ** — [SECURITY.md](SECURITY.md): 脆弱性報告、SLO、セキュリティ境界。
+- **行動規範** — [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): コミュニティ標準 (Contributor Covenant 2.1)。
+- **エージェント標準** — [AGENTS.md](AGENTS.md): AI コーディングエージェント向けの Tier-3 プロジェクト override。
+- **ロードマップ** — [ROADMAP.md](ROADMAP.md): 計画された機能とリリースマイルストーン。
+- **Adopters** — [ADOPTERS.md](ADOPTERS.md): ForgeWise をプロダクションまたは評価で使用している組織。
+
 詳細な設計は [docs/design.md](docs/design.md)、根拠リファレンスは
 [docs/references.md](docs/references.md)、セキュリティ運用基準は
 [docs/security.md](docs/security.md) を参照してください。

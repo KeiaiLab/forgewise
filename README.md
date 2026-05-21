@@ -144,6 +144,15 @@ FORGEWISE_LIVE_GITLAB_TOKEN=... FORGEWISE_LIVE_PROJECT_ID=group/project make smo
 
 If the token and project are absent, smoke exits as skip.
 
+## Contributing & Governance
+
+- **Contributing** — [CONTRIBUTING.md](CONTRIBUTING.md): development setup, Conventional Commits, DCO sign-off, PR flow.
+- **Security** — [SECURITY.md](SECURITY.md): vulnerability reporting, SLO, security boundaries.
+- **Code of Conduct** — [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): community standards (Contributor Covenant 2.1).
+- **Agent Standards** — [AGENTS.md](AGENTS.md): Tier-3 project override for AI coding agents.
+- **Roadmap** — [ROADMAP.md](ROADMAP.md): planned features and release milestones.
+- **Adopters** — [ADOPTERS.md](ADOPTERS.md): organizations using ForgeWise in production or evaluation.
+
 For detailed design see [docs/design.md](docs/design.md); for grounding
 references see [docs/references.md](docs/references.md); for security
 operating standards see [docs/security.md](docs/security.md).

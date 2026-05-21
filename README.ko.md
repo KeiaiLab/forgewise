@@ -140,6 +140,15 @@ FORGEWISE_LIVE_GITLAB_TOKEN=... FORGEWISE_LIVE_PROJECT_ID=group/project make smo
 
 토큰과 프로젝트가 없으면 smoke는 skip으로 종료합니다.
 
+## 기여와 거버넌스
+
+- **기여 가이드** — [CONTRIBUTING.md](CONTRIBUTING.md): 개발 환경 설정, Conventional Commits, DCO 서명, PR 흐름.
+- **보안** — [SECURITY.md](SECURITY.md): 취약점 보고, SLO, 보안 경계.
+- **행동 강령** — [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): 커뮤니티 표준 (Contributor Covenant 2.1).
+- **에이전트 표준** — [AGENTS.md](AGENTS.md): AI 코딩 에이전트용 Tier-3 프로젝트 override.
+- **로드맵** — [ROADMAP.md](ROADMAP.md): 계획된 기능 및 릴리스 마일스톤.
+- **Adopters** — [ADOPTERS.md](ADOPTERS.md): 프로덕션 또는 평가에서 ForgeWise를 사용하는 조직.
+
 자세한 설계는 [docs/design.md](docs/design.md), 근거 레퍼런스는
 [docs/references.md](docs/references.md), 보안 운영 기준은 [docs/security.md](docs/security.md)를
 봅니다.

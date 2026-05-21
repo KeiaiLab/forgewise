@@ -27,5 +27,9 @@ release: ## 자동 release pipeline (scripts/release.sh). 사용: make release V
 	@[ -n "$(VERSION)" ] || { echo "Usage: make release VERSION=v0.1.0"; exit 1; }
 	bash scripts/release.sh $(VERSION)
 
-audit-quality: ## 5 repo production-grade 자동 측정 (commons SSOT, ADR-0013).
-	@bash ../operator-commons/scripts/audit-production-grade.sh ..
+audit-quality: ## 5 repo production-grade 자동 측정 (commons SSOT, ADR-0013, sister repo 가용 시).
+	@if [ -f ../operator-commons/scripts/audit-production-grade.sh ]; then \
+		bash ../operator-commons/scripts/audit-production-grade.sh ..; \
+	else \
+		echo "audit-quality: ../operator-commons 부재 — graceful skip (keiailab operator family 컨텍스트 한정 target)"; \
+	fi
