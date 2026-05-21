@@ -11,6 +11,7 @@ import httpx
 from forgewise.audit import write_audit
 from forgewise.features import ForgeWise
 from forgewise.gitlab_client import GitLabClient, GitLabConfig
+from forgewise.nim_client import NimAuthError, NimClient, NimQuotaError, NimUpstreamError
 
 ToolHandler = Callable[["ToolRuntime", dict[str, Any]], dict[str, Any]]
 
@@ -341,6 +342,27 @@ def list_tool_definitions() -> list[ToolDefinition]:
             _semantic_code_search,
             ["id", "query"],
         ),
+        ToolDefinition(
+            name="nim_code_review",
+            description=(
+                "NVIDIA NIM (build.nvidia.com) LLM 으로 코드 리뷰 보조. "
+                "출력은 *advisory* — 결정 권한은 caller 에게."
+            ),
+            properties={
+                "code": _string_schema("리뷰 대상 코드 snippet (UTF-8 텍스트)"),
+                "focus": _string_schema(
+                    "리뷰 focus (예: 'security', 'performance', 'readability'). 생략 시 'general'.",
+                ),
+                "model": _string_schema(
+                    "NIM model ID (기본: meta/llama-3.3-70b-instruct). "
+                    "build.nvidia.com/models 참조.",
+                ),
+            },
+            required=["code"],
+            handler=_nim_code_review,
+            annotations={"readOnlyHint": True, "openWorldHint": True},
+            accepts_repo=False,
+        ),
     ]
 
 
@@ -371,6 +393,41 @@ def _validate_required(tool: ToolDefinition, arguments: dict[str, Any]) -> None:
 def _resolve_root(default_root: Path, arguments: dict[str, Any]) -> Path:
     value = arguments.get("repo")
     return Path(str(value)).resolve() if value else default_root.resolve()
+
+
+def _nim_code_review(runtime: ToolRuntime, args: dict[str, Any]) -> dict[str, Any]:
+    del runtime
+    code = str(args["code"])
+    focus = str(args.get("focus") or "general")
+    model = str(args.get("model") or "meta/llama-3.3-70b-instruct")
+    prompt = (
+        f"You are an advisory code reviewer focused on {focus}. "
+        "Identify the top 3 concrete issues and propose fixes. "
+        "Mark each issue as critical / major / minor. "
+        "Do not rewrite the entire snippet — only highlight changes.\n\n"
+        f"```\n{code}\n```"
+    )
+    try:
+        client = NimClient(model=model)
+        result = client.chat(
+            messages=[
+                {"role": "system", "content": "You are a senior code reviewer."},
+                {"role": "user", "content": prompt},
+            ],
+        )
+    except NimAuthError as exc:
+        raise McpToolError(f"nim_auth_failure: {exc}", code=-32001) from exc
+    except NimQuotaError as exc:
+        raise McpToolError(f"nim_quota_exhausted: {exc}", code=-32002) from exc
+    except NimUpstreamError as exc:
+        raise McpToolError(f"nim_upstream_error: {exc}", code=-32003) from exc
+    return {
+        "advisory_review": result.text,
+        "model": result.model,
+        "credits_remaining": result.credits_remaining,
+        "finish_reason": result.finish_reason,
+        "trust_boundary": "advisory — caller must treat output as a hint, not authoritative.",
+    }
 
 
 def _local_tool(
