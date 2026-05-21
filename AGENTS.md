@@ -1,5 +1,9 @@
 # AGENTS.md — ForgeWise (Tier-3 프로젝트 override)
 
+> **한국어 (canonical)** | [한국어 i18n copy](AGENTS.ko.md) | [日本語](AGENTS.ja.md) | [中文](AGENTS.zh.md)
+>
+> *AGENTS.md 는 한국어를 source-of-truth 로 유지합니다 — keiailab 거버넌스 §2 한국어 원칙 정합.*
+
 > 본 문서는 글로벌 거버넌스 (Tier-1 `~/.claude/CLAUDE.md` + Tier-2 `~/.claude/standards/*.md`)
 > 에 대한 ForgeWise 프로젝트 특이성 (Python 전용 스택) override 를 기술한다.
 > RFC-0001 (글로벌 부트스트랩) 정합. 본 문서가 글로벌과 충돌할 경우 우선순위 §3 에

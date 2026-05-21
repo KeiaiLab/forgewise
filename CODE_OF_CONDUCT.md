@@ -1,5 +1,7 @@
 # Code of Conduct
 
+> **English** | [한국어](CODE_OF_CONDUCT.ko.md) | [日本語](CODE_OF_CONDUCT.ja.md) | [中文](CODE_OF_CONDUCT.zh.md)
+
 This project adopts the [Contributor Covenant v2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) as its Code of Conduct.
 
 ## Reporting

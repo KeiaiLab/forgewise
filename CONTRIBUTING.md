@@ -1,5 +1,7 @@
 # Contributing to ForgeWise
 
+> **English** | [한국어](CONTRIBUTING.ko.md) | [日本語](CONTRIBUTING.ja.md) | [中文](CONTRIBUTING.zh.md)
+
 Thank you for your interest in contributing to **ForgeWise** — the
 `keiailab` MCP-native developer intelligence tool. This document covers
 the development environment, commit conventions, and pull request flow.

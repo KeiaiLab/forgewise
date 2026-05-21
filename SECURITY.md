@@ -1,5 +1,7 @@
 # Security Policy
 
+> **English** | [한국어](SECURITY.ko.md) | [日本語](SECURITY.ja.md) | [中文](SECURITY.zh.md)
+
 ForgeWise is a `keiailab` open-source MCP-native developer intelligence tool
 that may handle source code, audit logs, GitLab tokens, and OAuth credentials.
 We take security seriously and appreciate responsible disclosure.
