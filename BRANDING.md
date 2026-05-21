@@ -6,19 +6,19 @@ This document is the canonical reference for `forgewise` branding decisions. It 
 
 ## 1. Identity
 
-**Organization**: [keiailab](https://keiailab.com) — Kubernetes-native data platform operators + developer intelligence tooling (Apache-2.0, license-clean).
+**Organization**: [keiailab](https://keiailab.com) — Kubernetes-native data platform operators (Apache-2.0, license-clean, vanilla-upstream compatible).
 
-**Project**: `forgewise` — Open-source MCP-native developer intelligence for code forges — GitLab / GitHub / Gitea / Forgejo. Provides GitLab Duo Enterprise-class assistant features as a locally executable, MCP-native tool surface (CLI `forgewise`, stdio MCP `forgewise-mcp`, HTTP MCP `forgewise-http`).
+**Project**: `forgewise` — Apache-2.0 MCP-native developer intelligence — open-source, locally-executable, GitLab Duo Enterprise-class tool surface with deterministic analysis.
 
-**Family**: One of five sister projects in the keiailab open-source portfolio:
+**Family**: One of five sister projects sharing the keiailab governance baseline. `forgewise` is the *only Python project* (the others are Go-based Kubernetes operators):
 
-| Project | Tier | Stack | Repository |
+| Project | Language | Domain | Repository |
 |---|---|---|---|
-| `operator-commons` | Library | Go | https://github.com/keiailab/operator-commons |
-| `postgres-operator` | Operator | Go (K8s) | https://github.com/keiailab/postgres-operator |
-| `mongodb-operator` | Operator | Go (K8s) | https://github.com/keiailab/mongodb-operator |
-| `valkey-operator` | Operator | Go (K8s) | https://github.com/keiailab/valkey-operator |
-| `forgewise` | MCP server | Python | https://github.com/keiailab/forgewise |
+| `postgres-operator` | Go | Kubernetes operator (PostgreSQL 18+) | https://github.com/keiailab/postgres-operator |
+| `mongodb-operator` | Go | Kubernetes operator (MongoDB 7.0+) | https://github.com/keiailab/mongodb-operator |
+| `valkey-operator` | Go | Kubernetes operator (Valkey 8.0+) | https://github.com/keiailab/valkey-operator |
+| `operator-commons` | Go | Shared Go library for the 3 operators | https://github.com/keiailab/operator-commons |
+| **`forgewise`** | **Python 3.11+** | **MCP-native developer intelligence** | https://github.com/keiailab/forgewise |
 
 ## 2. Logo & Visual Assets
 
@@ -61,36 +61,24 @@ GitHub README 의 shield.io badge 는 위 hex 사용 권장.
 
 ## 5. Voice & Tone
 
-**Audience**: Platform engineers / DevOps / SRE / developers using MCP-native tooling against GitLab / GitHub / Gitea / Forgejo.
+**Audience**: Platform engineers / DevOps / SRE / developer experience teams running GitLab self-hosted or evaluating MCP-native developer tooling.
 
 **Voice principles**:
 - **Direct** — bullet-point over paragraph where possible
 - **Evidence-based** — claims include benchmark / SLA / link
-- **Vendor-neutral** — supports all code forges (GitLab, GitHub, Gitea, Forgejo); does not favor one
-- **Trademark-aware** — never reference "GitLab Duo" as the product name; describe ForgeWise as an open-source feature-compatible surface
-- **License-aware** — Apache-2.0 only, no AGPL/BUSL/SSPL dependencies
+- **Vendor-neutral** — feature-compatible with GitLab Duo Enterprise but never embeds Duo trademark or proprietary code
+- **License-aware** — Apache-2.0 + MIT/BSD/PSF dependencies only; reject SSPL and copyleft on the SaaS surface
+- **Deterministic-first** — MVP makes zero external LLM calls; in-house LLM router is an opt-in attach point
 
 **Avoid**:
 - Marketing superlatives ("blazing fast", "revolutionary", "best-in-class")
-- Direct GitLab Duo product comparisons ("GitLab Duo Pro replacement") — describe capability surface instead
-- Vague comparisons ("Enterprise-class quality") — *qualify with specific feature group or audit log evidence*
-- Time-based deadlines in roadmap (use feature checklist with `[x]`/`[~]`/`[ ]` state markers instead)
+- Vague comparisons ("X-class quality") — *qualify with specific metric or benchmark*
+- Time-based deadlines in roadmap (use feature checklist instead)
+- Claims that imply official GitLab partnership or Duo trademark license
 
-## 6. GitLab Duo Trademark Policy
+## 6. README Header Standard
 
-`forgewise` deliberately avoids the "GitLab Duo" trademark in direct product positioning. The README, marketing material, and external communication use the following framing:
-
-- ✅ "Open-source MCP-native developer intelligence" — neutral positioning
-- ✅ "Provides feature surface comparable to GitLab Duo Enterprise" — capability-level reference, not branding equivalence
-- ✅ "GitLab Duo Enterprise-class features" — adjectival use only in technical comparison context
-- ❌ "GitLab Duo alternative" / "GitLab Duo replacement" — implies trademark substitution
-- ❌ "ForgeWise Duo" / "Open-source Duo" — creates trademark confusion
-
-When in doubt, describe the *capability* (code explanation, review, security explanation, RCA, test gen, change summary) rather than the *competitor brand*.
-
-## 7. README Header Standard
-
-모든 README 의 첫 문단은 다음 표준 형식을 따른다:
+모든 README 의 첫 문단은 다음 형식 (Wave 3 표준 — forgewise 적응):
 
 ```markdown
 <p align="center">
@@ -99,7 +87,7 @@ When in doubt, describe the *capability* (code explanation, review, security exp
 
 # forgewise
 
-> **Open-source MCP-native developer intelligence for code forges — GitLab / GitHub / Gitea / Forgejo**
+> **Apache-2.0 MCP-native developer intelligence — GitLab Duo Enterprise-class tools, locally executable, deterministic**
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"/></a>
@@ -114,9 +102,9 @@ When in doubt, describe the *capability* (code explanation, review, security exp
 </p>
 ```
 
-## 8. README Footer Standard
+## 7. README Footer Standard
 
-모든 README + root-level .md 파일의 마지막에 다음 표준 footer 를 부착한다:
+모든 README + root-level .md 파일의 마지막에 다음 footer 부착 (Wave 3 표준 — forgewise 포함 5 repo 정합):
 
 ```markdown
 ---
@@ -130,40 +118,47 @@ When in doubt, describe the *capability* (code explanation, review, security exp
   <a href="https://github.com/keiailab/forgewise">forgewise</a>
 </p>
 
-<p align="center">© 2026 keiailab · Apache-2.0 · <a href="https://keiailab.com">keiailab.com</a></p>
+<p align="center">
+  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+</p>
 ```
 
-## 9. Badges 표준 순서
+## 8. Badges 표준 순서
 
-README 의 shield.io badge 순서 (좌→우):
+README 의 shield.io badge 순서 (좌→우, forgewise 적응):
 
 1. License (Apache-2.0)
 2. Python Version (3.11+)
-3. PyPI Package (`forgewise` on pypi.org once published)
-4. MCP Compatibility (model context protocol logo / version)
-5. OpenSSF Scorecard
-6. GitHub Discussions
+3. MCP protocol version (`2025-03-26` / `2025-06-18`)
+4. PyPI package (when released)
+5. Container Image (ghcr.io/keiailab/forgewise — when published)
+6. OpenSSF Scorecard
+7. GitHub Discussions
 
-> **Note**: `forgewise` 는 *Python MCP server* 라 Kubernetes / Container Image / Helm Chart badge 는 사용 안 함. 본 도구는 PyPI + uvx + MCP stdio/HTTP 중심.
+## 9. Discussions / Issues / PR Templates
 
-## 10. Discussions / Issues / PR Templates
+- **Discussions**: `https://github.com/keiailab/forgewise/discussions` — feature ideas, Q&A
+- **Issues**: bug reports + concrete feature requests with use case (security issues via `SECURITY.md`)
+- **PR template**: `.github/PULL_REQUEST_TEMPLATE.md` 표준 (사용자 시나리오 + 검증 명령 인용 의무, `CONTRIBUTING.md` PR Checklist 정합)
 
-- **Discussions**: `https://github.com/keiailab/forgewise/discussions` — feature group requests, MCP client integration, tool surface 제안
-- **Issues**: bug reports + concrete feature requests with use case (target code forge 명시 권장 — GitLab / GitHub / Gitea / Forgejo)
-- **PR description 표준**: 사용자 시나리오 + 검증 명령 (`pytest` / `ruff check` / `mypy` 출력) 인용 의무
-
-## 11. Social & External
+## 10. Social & External
 
 - **Website**: https://keiailab.com
 - **GitHub Org**: https://github.com/keiailab
-- **PyPI**: (pending publish)
-- **MCP Registry**: (pending submission to modelcontextprotocol.io community registry)
+- **PyPI** (Python package): https://pypi.org/project/forgewise/ (게시 후)
+- **GHCR** (Container): https://github.com/keiailab/forgewise/pkgs/container/forgewise (게시 후)
 
-## 12. License & Attribution
+## 11. License & Attribution
 
 - License: [Apache-2.0](LICENSE)
 - Copyright: © 2026 keiailab contributors
-- Third-party attributions: see `docs/references.md`
+- Third-party attributions: see [NOTICE](NOTICE) (현재 미작성 — Python deps 의 license 표기는 `pyproject.toml` 의 `[project.dependencies]` 와 `uv.lock` 으로 추적)
+
+## 12. Trademark Notice
+
+- "GitLab" 및 "GitLab Duo" 는 GitLab Inc. 의 등록 상표입니다. forgewise 는 GitLab 또는 GitLab Inc. 의 공식 제품 / 인증 / 파트너 관계가 아닙니다.
+- forgewise 는 GitLab Duo Enterprise 의 *기능 호환 표면 (feature-compatible surface)* 만을 오픈소스로 제공하며, GitLab 의 proprietary code 또는 모델을 포함하지 않습니다.
+- 모든 GitLab API 호출은 사용자의 자체 GitLab 인스턴스 + token 으로 수행됩니다.
 
 ---
 
@@ -176,4 +171,6 @@ README 의 shield.io badge 순서 (좌→우):
   <a href="https://github.com/keiailab/forgewise">forgewise</a>
 </p>
 
-<p align="center">© 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a></p>
+<p align="center">
+  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+</p>

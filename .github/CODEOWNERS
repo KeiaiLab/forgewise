@@ -1,0 +1,33 @@
+# forgewise CODEOWNERS — keiailab family
+#
+# Default owner for everything in the repo.
+# CodeOwners are automatically requested for review when PRs touch matching paths.
+
+* @eightynine01
+
+# Governance + meta
+SECURITY.md @eightynine01
+CODE_OF_CONDUCT.md @eightynine01
+CONTRIBUTING.md @eightynine01
+CHANGELOG.md @eightynine01
+AGENTS.md @eightynine01
+ROADMAP.md @eightynine01
+ADOPTERS.md @eightynine01
+
+# i18n SSOT — synced from operator-commons
+docs/i18n/ @eightynine01
+docs/family*.md @eightynine01
+
+# Python source + tests
+/forgewise/ @eightynine01
+/tests/ @eightynine01
+
+# Build + tooling
+/pyproject.toml @eightynine01
+/uv.lock @eightynine01
+/Makefile @eightynine01
+/lefthook.yml @eightynine01
+
+# Documentation
+/README*.md @eightynine01
+/docs/ @eightynine01
