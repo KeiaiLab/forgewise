@@ -1,9 +1,18 @@
 from __future__ import annotations
 
+import io
 import json
 from pathlib import Path
 
-from forgewise.mcp_server import handle_json_rpc, list_tools
+import pytest
+
+from forgewise.mcp_server import (
+    _read_content_length_message,
+    _write_content_length_message,
+    handle_json_rpc,
+    list_tools,
+    main,
+)
 
 
 def test_mcp_lists_gitlab_duo_mapped_tools() -> None:
@@ -114,3 +123,83 @@ def test_mcp_tool_prefix_is_accepted_for_calls(tmp_path: Path) -> None:
     response = handle_json_rpc(request, tool_prefix="gitlab_")
 
     assert response["result"]["structuredContent"]["feature"] == "get_mcp_server_version"
+
+
+# ─── LSP-style Content-Length transport tests (Phase E3' — mcp_server.py coverage 30% → 70%+) ───
+
+
+def test_read_content_length_message_parses_valid_payload() -> None:
+    raw = b"Content-Length: 5\r\n\r\nhello"
+    stream = io.BytesIO(raw)
+    assert _read_content_length_message(stream) == "hello"
+
+
+def test_read_content_length_message_returns_none_on_eof() -> None:
+    stream = io.BytesIO(b"")
+    assert _read_content_length_message(stream) is None
+
+
+def test_read_content_length_message_returns_none_when_length_missing() -> None:
+    # 헤더 블록 만 (Content-Length 부재) → length 0 → None
+    raw = b"\r\n"
+    stream = io.BytesIO(raw)
+    assert _read_content_length_message(stream) is None
+
+
+def test_read_content_length_message_handles_multibyte_utf8() -> None:
+    # 한국어 + emoji = multibyte UTF-8 payload — byte length 와 char length 다름
+    payload = '{"msg":"안녕 🚀"}'
+    encoded = payload.encode("utf-8")
+    raw = f"Content-Length: {len(encoded)}\r\n\r\n".encode("ascii") + encoded
+    stream = io.BytesIO(raw)
+    assert _read_content_length_message(stream) == payload
+
+
+def test_write_content_length_message_emits_lsp_framing() -> None:
+    stream = io.BytesIO()
+    payload = '{"jsonrpc":"2.0","id":1}'
+    _write_content_length_message(stream, payload)
+    out = stream.getvalue()
+    # Content-Length 헤더 + \r\n\r\n 분리자 + UTF-8 body
+    expected_len = len(payload.encode("utf-8"))
+    assert out.startswith(f"Content-Length: {expected_len}\r\n\r\n".encode("ascii"))
+    assert out.endswith(payload.encode("utf-8"))
+
+
+def test_main_loop_processes_message_and_returns_on_eof(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # main(): stdin frame read → handle_json_rpc → stdout write → loop → EOF return 0
+    request = {
+        "jsonrpc": "2.0",
+        "id": 100,
+        "method": "tools/list",
+    }
+    body = json.dumps(request).encode("utf-8")
+    in_buffer = io.BytesIO(f"Content-Length: {len(body)}\r\n\r\n".encode("ascii") + body)
+    out_buffer = io.BytesIO()
+
+    import sys
+
+    class _FakeStdin:
+        buffer = in_buffer
+
+    class _FakeStdout:
+        buffer = out_buffer
+
+        @staticmethod
+        def flush() -> None:
+            pass
+
+    monkeypatch.setattr(sys, "stdin", _FakeStdin())
+    monkeypatch.setattr(sys, "stdout", _FakeStdout())
+
+    rc = main()
+    assert rc == 0
+    raw_out = out_buffer.getvalue()
+    # 응답 frame 안 에 tools/list 결과 ("tools" key) 가 있어야 함
+    assert b"Content-Length: " in raw_out
+    body_start = raw_out.index(b"\r\n\r\n") + 4
+    response = json.loads(raw_out[body_start:].decode("utf-8"))
+    assert response["id"] == 100
+    assert "tools" in response["result"]
