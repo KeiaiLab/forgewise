@@ -1,5 +1,9 @@
 # ForgeWise
 
+> ⚠️ This translation is AI-generated and pending native review. See [한국어 glossary](https://github.com/keiailab/operator-commons/blob/main/docs/i18n/glossary-ko.md) for terminology.
+
+> [English](README.md) | **한국어** | [日本語](README.ja.md) | [中文](README.zh.md)
+
 ForgeWise는 GitLab Duo Enterprise류 개발 보조 기능을 오픈소스, 로컬 실행,
 MCP-native 도구 표면으로 구현하는 `keiailab` 프로젝트입니다.
 
@@ -139,3 +143,16 @@ FORGEWISE_LIVE_GITLAB_TOKEN=... FORGEWISE_LIVE_PROJECT_ID=group/project make smo
 자세한 설계는 [docs/design.md](docs/design.md), 근거 레퍼런스는
 [docs/references.md](docs/references.md), 보안 운영 기준은 [docs/security.md](docs/security.md)를
 봅니다.
+
+---
+
+<p align="center">
+  <b>keiailab operator family</b><br/>
+  <a href="https://github.com/keiailab/operator-commons">operator-commons</a> ·
+  <a href="https://github.com/keiailab/postgres-operator">postgres-operator</a> ·
+  <a href="https://github.com/keiailab/mongodb-operator">mongodb-operator</a> ·
+  <a href="https://github.com/keiailab/valkey-operator">valkey-operator</a> ·
+  <a href="https://github.com/keiailab/forgewise">forgewise</a>
+</p>
+
+<p align="center">© 2026 keiailab · Apache-2.0 · <a href="https://keiailab.com">keiailab.com</a></p>
