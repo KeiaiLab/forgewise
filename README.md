@@ -1,72 +1,78 @@
 # ForgeWise
 
-ForgeWise는 GitLab Duo Enterprise류 개발 보조 기능을 오픈소스, 로컬 실행,
-MCP-native 도구 표면으로 구현하는 `keiailab` 프로젝트입니다.
+> **English** | [한국어](README.ko.md) | [日本語](README.ja.md) (placeholder) | [中文](README.zh.md) (placeholder)
 
-## 네이밍
+ForgeWise is a `keiailab` project that implements GitLab Duo Enterprise-class
+development assistant features as an open-source, locally executable, MCP-native
+tool surface.
 
-선택 이름은 **ForgeWise**입니다.
+## Naming
 
-- Forge: GitLab, GitHub, Gitea, Forgejo 같은 코드 forge 전체를 대상으로 합니다.
-- Wise: 단순 챗봇이 아니라 코드 설명, 리뷰, 보안 설명, 원인 분석, 테스트 생성,
-  변경 요약을 같은 정책과 감사 로그 아래에서 수행합니다.
-- GitLab Duo 상표를 직접 쓰지 않고, 기능 호환 표면만 오픈소스로 제공합니다.
+The chosen name is **ForgeWise**.
 
-CLI 명령은 `forgewise`, stdio MCP 서버 명령은 `forgewise-mcp`, HTTP MCP 서버
-명령은 `forgewise-http`입니다.
+- **Forge**: targets all code forges — GitLab, GitHub, Gitea, Forgejo.
+- **Wise**: not a simple chatbot — performs code explanation, review, security
+  explanation, root-cause analysis, test generation, and change summarization
+  under the same policy and audit log.
+- Avoids direct use of the GitLab Duo trademark; provides only an open-source
+  feature-compatible surface.
 
-## 기능 표면
+The CLI command is `forgewise`, the stdio MCP server command is `forgewise-mcp`,
+and the HTTP MCP server command is `forgewise-http`.
 
-현재 MVP는 외부 LLM 호출 없이 결정론적 분석으로 동작합니다. 같은 API 표면 위에
-사내 LLM 또는 self-hosted 모델 라우터를 붙일 수 있게 설계했습니다.
+## Feature Surface
 
-| ForgeWise tool | 대응 기능군 |
+The current MVP operates with deterministic analysis, without external LLM
+calls. The same API surface is designed to allow attaching an in-house LLM or
+self-hosted model router.
+
+| ForgeWise tool | Feature group |
 | --- | --- |
-| `code_suggestions` | 코드 제안 |
-| `duo_chat` | 저장소 문맥 기반 Chat |
-| `code_explanation` | 코드 설명 호환 alias |
-| `code_explanation_ide` | IDE 코드 설명 |
-| `code_explanation_gitlab_ui` | GitLab UI 코드 설명 |
-| `refactor_code` | 리팩터링 제안 |
-| `fix_code` | 수정 제안 |
-| `test_generation` | 테스트 생성 |
-| `code_review` | 코드 리뷰 |
-| `root_cause_analysis` | 장애 원인 분석 |
-| `vulnerability_explanation` | 취약점 설명 |
-| `vulnerability_resolution` | 취약점 해결 제안 |
-| `merge_request_summary` | MR 요약 |
-| `discussion_summary` | 토론 요약 |
-| `sdlc_trends` | SDLC 품질 추세 |
-| `merge_commit_message_generation` | Merge commit message 생성 |
-| `code_review_summary` | 코드 리뷰 요약 |
-| `issue_description_generation` | 이슈 설명 생성 |
+| `code_suggestions` | Code suggestions |
+| `duo_chat` | Repository-context Chat |
+| `code_explanation` | Code explanation compatible alias |
+| `code_explanation_ide` | IDE code explanation |
+| `code_explanation_gitlab_ui` | GitLab UI code explanation |
+| `refactor_code` | Refactoring suggestions |
+| `fix_code` | Fix suggestions |
+| `test_generation` | Test generation |
+| `code_review` | Code review |
+| `root_cause_analysis` | Root-cause analysis |
+| `vulnerability_explanation` | Vulnerability explanation |
+| `vulnerability_resolution` | Vulnerability resolution suggestions |
+| `merge_request_summary` | MR summary |
+| `discussion_summary` | Discussion summary |
+| `sdlc_trends` | SDLC quality trends |
+| `merge_commit_message_generation` | Merge commit message generation |
+| `code_review_summary` | Code review summary |
+| `issue_description_generation` | Issue description generation |
 
-GitLab MCP server 호환 tool도 함께 제공합니다.
+GitLab MCP server compatible tools are also provided.
 
-| ForgeWise tool | 대응 GitLab MCP 기능 |
+| ForgeWise tool | Corresponding GitLab MCP feature |
 | --- | --- |
-| `get_mcp_server_version` | MCP 서버 버전 |
-| `create_issue`, `get_issue` | issue 생성/조회 |
-| `create_merge_request`, `get_merge_request` | MR 생성/조회 |
-| `get_merge_request_commits`, `get_merge_request_diffs` | MR commit/diff 조회 |
-| `get_merge_request_pipelines`, `get_pipeline_jobs`, `manage_pipeline` | pipeline 조회/관리 |
-| `create_workitem_note`, `get_workitem_notes` | work item note 생성/조회 |
-| `search`, `search_labels`, `semantic_code_search` | GitLab 검색 |
+| `get_mcp_server_version` | MCP server version |
+| `create_issue`, `get_issue` | Issue create / get |
+| `create_merge_request`, `get_merge_request` | MR create / get |
+| `get_merge_request_commits`, `get_merge_request_diffs` | MR commit / diff |
+| `get_merge_request_pipelines`, `get_pipeline_jobs`, `manage_pipeline` | Pipeline query / manage |
+| `create_workitem_note`, `get_workitem_notes` | Work item note create / get |
+| `search`, `search_labels`, `semantic_code_search` | GitLab search |
 
-## 설치
+## Installation
 
 ```bash
 uv run --python 3.11 --extra dev python -m pytest
 ```
 
-개발 설치:
+Development install:
 
 ```bash
 uv sync --python 3.11 --extra dev
 uv run forgewise --repo . review
 ```
 
-## CLI 예시
+## CLI Examples
 
 ```bash
 forgewise --repo . explain forgewise/features.py
@@ -78,11 +84,11 @@ forgewise --repo . issue-description "login failure after deploy"
 forgewise --repo . check
 ```
 
-`check`는 보안 또는 유지보수 finding이 있으면 exit code `1`을 반환합니다.
+`check` exits with code `1` if security or maintainability findings exist.
 
-## MCP 서버
+## MCP Server
 
-MCP 클라이언트에는 stdio 서버로 등록합니다.
+Register as a stdio server in your MCP client:
 
 ```json
 {
@@ -94,48 +100,63 @@ MCP 클라이언트에는 stdio 서버로 등록합니다.
 }
 ```
 
-각 tool 호출은 `.forgewise/audit.jsonl`에 tool 이름, 인자, 기능명을 남깁니다.
-비밀값처럼 보이는 인자 키는 기록 전에 `[REDACTED]`로 마스킹합니다.
+Each tool call logs the tool name, arguments, and feature name to
+`.forgewise/audit.jsonl`. Arguments whose keys look like secrets are masked as
+`[REDACTED]` before being recorded.
 
-GitLab MCP compatible HTTP endpoint는 다음처럼 실행합니다.
+Run the GitLab MCP compatible HTTP endpoint as follows:
 
 ```bash
 forgewise-http --repo . --host 127.0.0.1 --port 8080 --require-oauth
 ```
 
-HTTP endpoint:
+HTTP endpoints:
 
 - `POST /api/v4/mcp`: MCP JSON-RPC endpoint
 - `POST /oauth/register`: Dynamic Client Registration
-- `GET /oauth/authorize`: authorization code 발급
-- `POST /oauth/token`: access token 교환
+- `GET /oauth/authorize`: authorization code issue
+- `POST /oauth/token`: access token exchange
 - `GET /.well-known/oauth-authorization-server`: OAuth metadata
 
-GitLab API tool은 `GITLAB_BASE_URL`, `GITLAB_TOKEN`을 사용합니다. 변경성 tool은 기본
-차단되며, 실행하려면 `FORGEWISE_ENABLE_MUTATIONS=1`이 필요합니다.
+The GitLab API tools use `GITLAB_BASE_URL` and `GITLAB_TOKEN`. Mutating tools
+are blocked by default; to enable them, `FORGEWISE_ENABLE_MUTATIONS=1` is
+required.
 
-## 로컬 게이트
+## Local Gates
 
-GitHub Actions는 사용하지 않습니다. 모든 검증은 로컬 게이트로 실행합니다.
+GitHub Actions is not used. All verification runs through local gates.
 
 ```bash
 make check
 ```
 
-게이트 구성:
+Gate composition:
 
 - `make lint`: `ruff check .`
 - `make typecheck`: `mypy forgewise tests`
 - `make test`: `python -m pytest`
 
-선택적 live smoke:
+Optional live smoke:
 
 ```bash
 FORGEWISE_LIVE_GITLAB_TOKEN=... FORGEWISE_LIVE_PROJECT_ID=group/project make smoke-gitlab
 ```
 
-토큰과 프로젝트가 없으면 smoke는 skip으로 종료합니다.
+If the token and project are absent, smoke exits as skip.
 
-자세한 설계는 [docs/design.md](docs/design.md), 근거 레퍼런스는
-[docs/references.md](docs/references.md), 보안 운영 기준은 [docs/security.md](docs/security.md)를
-봅니다.
+For detailed design see [docs/design.md](docs/design.md); for grounding
+references see [docs/references.md](docs/references.md); for security
+operating standards see [docs/security.md](docs/security.md).
+
+---
+
+<p align="center">
+  <b>keiailab operator family</b><br/>
+  <a href="https://github.com/keiailab/operator-commons">operator-commons</a> ·
+  <a href="https://github.com/keiailab/postgres-operator">postgres-operator</a> ·
+  <a href="https://github.com/keiailab/mongodb-operator">mongodb-operator</a> ·
+  <a href="https://github.com/keiailab/valkey-operator">valkey-operator</a> ·
+  <a href="https://github.com/keiailab/forgewise">forgewise</a>
+</p>
+
+<p align="center">© 2026 keiailab · Apache-2.0 · <a href="https://keiailab.com">keiailab.com</a></p>
