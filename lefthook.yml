@@ -24,10 +24,6 @@ pre-commit:
       # detect-secrets baseline 미생성 시 graceful skip (Phase 1 정책)
       # baseline 생성: `uv run detect-secrets scan > .secrets.baseline`
       run: |
-        if [ -z "{staged_files}" ]; then
-          echo "secrets: no staged files"
-          exit 0
-        fi
         if [ ! -f .secrets.baseline ]; then
           echo "secrets: .secrets.baseline 미생성 — graceful skip (baseline 생성 권장)"
           exit 0
