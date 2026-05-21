@@ -74,7 +74,7 @@ GitHub README 의 shield.io badge 는 위 hex 사용 권장.
 - Marketing superlatives ("blazing fast", "revolutionary", "best-in-class")
 - Direct GitLab Duo product comparisons ("GitLab Duo Pro replacement") — describe capability surface instead
 - Vague comparisons ("Enterprise-class quality") — *qualify with specific feature group or audit log evidence*
-- Time-based deadlines in roadmap (use `standards/roadmap.md §1.1` — feature checklist instead)
+- Time-based deadlines in roadmap (use feature checklist with `[x]`/`[~]`/`[ ]` state markers instead)
 
 ## 6. GitLab Duo Trademark Policy
 
@@ -90,7 +90,7 @@ When in doubt, describe the *capability* (code explanation, review, security exp
 
 ## 7. README Header Standard
 
-모든 README 의 첫 문단은 다음 형식 (Wave 3 표준):
+모든 README 의 첫 문단은 다음 표준 형식을 따른다:
 
 ```markdown
 <p align="center">
@@ -116,7 +116,7 @@ When in doubt, describe the *capability* (code explanation, review, security exp
 
 ## 8. README Footer Standard
 
-모든 README + root-level .md 파일의 마지막에 다음 footer 부착 (Wave 3 표준):
+모든 README + root-level .md 파일의 마지막에 다음 표준 footer 를 부착한다:
 
 ```markdown
 ---
@@ -150,7 +150,7 @@ README 의 shield.io badge 순서 (좌→우):
 
 - **Discussions**: `https://github.com/keiailab/forgewise/discussions` — feature group requests, MCP client integration, tool surface 제안
 - **Issues**: bug reports + concrete feature requests with use case (target code forge 명시 권장 — GitLab / GitHub / Gitea / Forgejo)
-- **PR template**: `.github/PULL_REQUEST_TEMPLATE.md` 표준 (사용자 시나리오 + 검증 명령 인용 의무, `standards/checklist.md §3`)
+- **PR description 표준**: 사용자 시나리오 + 검증 명령 (`pytest` / `ruff check` / `mypy` 출력) 인용 의무
 
 ## 11. Social & External
 
