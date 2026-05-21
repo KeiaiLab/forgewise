@@ -49,6 +49,13 @@ ForgeWise 의 모든 주목할 만한 변경은 본 파일에 기록됩니다.
   - `docs/upgrade.{ko,ja,zh}.md` 신규
   - 거버넌스 5종 `SECURITY/CONTRIBUTING/CODE_OF_CONDUCT/CHANGELOG/AGENTS.{ko,ja,zh}.md` 신규
     (ja/zh 는 placeholder, ko 는 완전 번역)
+- **S5 (post-sync, 2026-05-21)**: CI 게이트 + coverage + 신고 채널 보강
+  - `.gitlab-ci.yml` 신규 — GitLab CI stand-alone (lint/typecheck/test 3-stage, RFC-0002 정합).
+    pipeline-gated `merge_when_pipeline_succeeds=true` 활성.
+  - `pyproject.toml [tool.coverage.*]` + `pytest-cov` dev dep + `Makefile coverage` target
+    (branch coverage + fail_under=70 alpha baseline, 현재 76.49%)
+  - `tests/test_mcp_server.py` — LSP transport + main loop test 6 신규
+    (mcp_server.py coverage 30% → 100%)
 
 ### Changed
 

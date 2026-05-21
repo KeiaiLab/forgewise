@@ -58,6 +58,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (없음 — 본 cycle 은 거버넌스/문서 범위. tool 코드 변경 0)
 
+### Added (post-sync 2026-05-21)
+
+- `.gitlab-ci.yml` — GitLab CI stand-alone pipeline (lint/typecheck/test 3 stage,
+  RFC-0002 정합). pipeline-gated `merge_when_pipeline_succeeds=true` 활성.
+- `pyproject.toml [tool.coverage.*]` + `pytest-cov` dev dep + `Makefile coverage`
+  target — branch coverage + fail_under=70 alpha baseline (현재 76.49%).
+- `tests/test_mcp_server.py` — LSP transport + main loop test 6 신규
+  (mcp_server.py coverage 30% → 100%).
+
+### Changed (post-sync 2026-05-21)
+
+- `SECURITY.md` — PGP key URL 구체화 (org website 모호 →
+  `keiailab.com/security/pgp-public-key.asc`).
+- `README.{md,ko,ja,zh}.md` — "Contributing & Governance" 섹션 6 link 추가
+  (Contributing/Security/Code of Conduct/Agents/Roadmap/Adopters). 4-lang sync.
+- `Makefile audit-quality` target — `../operator-commons` 부재 시 graceful skip
+  (OSS consumer 호환).
+- `lefthook.yml py-audit` hook — `pip-audit` detection 강화 (pyenv shim silent
+  fail 해소 — `command -v` → `pip-audit --version` 검사).
+
+### Fixed (post-sync 2026-05-21)
+
+- `tests/test_nim.py:22` — mypy strict 정합 (`_mock_response` return type
+  annotation + `dict` generic argument).
+
 ## [0.1.0] - 2026-05-12
 
 ### Added
