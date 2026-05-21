@@ -3,10 +3,14 @@
 # 출처: docs/specs/2026-05-21-forgewise-governance-and-ops-alignment-design.md §Phase 1
 # RFC-0002 (GHA 영구 금지) 정합. 모든 게이트는 로컬에서 실행.
 #
+# S4 Phase 6 (2026-05-21): readme-i18n-sync hook 추가 — README 4-lang drift 검사
+# (operator-commons docs/i18n/README.md §5.1 정합).
+#
 # 우회 정책:
 # - 전체 우회: `LEFTHOOK=0 git commit ...` 또는 commit message 에 `[skip-hooks]`
 # - 개별 hook 우회: 각 hook 의 env 항목 (사유 PR / commit body 의무 기술)
 # - DCO 우회 (`DCO_OK=1`): 강력 비권장 — keiailab organization 표준 위배
+# - readme-i18n-sync 우회: SKIP_CHECK_README_SYNC=1 (전체) / SKIP_CHECK_README_SYNC_{KO,JA,ZH}=1 (개별)
 
 min_version: 1.5.0
 
@@ -98,3 +102,45 @@ pre-push:
           exit 0
         fi
         pip-audit
+    readme-i18n-sync:
+      # README.md (EN canonical) ↔ README.{ko,ja,zh}.md drift check (S4 Phase 6).
+      # operator-commons docs/i18n/README.md §5.1 정합 — pre-push 위치 (작업 흐름 마찰 적음).
+      # 언어별 임계값: KO 15% / JA 25% / ZH 30%.
+      # 우회: SKIP_CHECK_README_SYNC=1 (전체) / SKIP_CHECK_README_SYNC_{KO,JA,ZH}=1 (개별).
+      run: |
+        if [ ! -f scripts/check-readme-sync.sh ]; then
+          echo "readme-i18n-sync: scripts/check-readme-sync.sh 미존재 — graceful skip (operator-commons sync 권장)"
+          exit 0
+        fi
+        bash scripts/check-readme-sync.sh
+
+    # ─── audit P0-9 보강 — uv.lock drift (2026-05-21, commons ADR-0015 정합) ──
+    uv-lock-drift:
+      glob: "pyproject.toml"
+      run: |
+        if ! command -v uv >/dev/null 2>&1; then
+          echo "uv-lock-drift: uv 미설치 — graceful skip"
+          exit 0
+        fi
+        cp uv.lock /tmp/uv.lock.bak 2>/dev/null || true
+        uv lock 2>/dev/null
+        if ! diff -q uv.lock /tmp/uv.lock.bak >/dev/null 2>&1; then
+          cp /tmp/uv.lock.bak uv.lock 2>/dev/null || true
+          rm -f /tmp/uv.lock.bak
+          echo "❌ uv-lock-drift: pyproject.toml 변경 후 uv.lock 갱신 누락"
+          echo "   해결: uv lock && git add uv.lock && git commit --amend"
+          exit 1
+        fi
+        rm -f /tmp/uv.lock.bak
+
+    # ─── audit P1-13 보강 — markdown link check (commons ADR-0015 정합) ──
+    markdown-link-check:
+      glob: "*.md"
+      run: |
+        if ! command -v markdown-link-check >/dev/null 2>&1; then
+          echo "markdown-link-check: 미설치 — graceful skip"
+          exit 0
+        fi
+        for f in {staged_files}; do
+          markdown-link-check --quiet "$f" 2>&1 | grep -vE "^$|^Checking|FILE:" || true
+        done
