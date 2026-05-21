@@ -1,0 +1,51 @@
+# forgewise GitLab CI pipeline — stand-alone (RFC-0002 정합)
+#
+# 정책:
+# - RFC-0002 (GitHub Actions 영구 금지) 정합. .github/workflows/ 신규 추가 금지.
+# - 단일 repo scope. ai-dev 글로벌 SSOT include 안 함 (forgewise OSS 독립).
+# - lefthook pre-push hook 의 stage 와 1:1 sister — local gate + CI gate 동일.
+# - graceful: runner 부재 (tags 비매칭) 시 pipeline skip (allow_failure=false 유지로 명시 차단).
+#
+# Codex Adversarial Review finding #1 정합 — auto_merge no-gate anti-pattern 해소.
+# 본 .gitlab-ci.yml 활성 후 모든 MR `merge_when_pipeline_succeeds=true` 의무.
+
+stages:
+  - lint
+  - typecheck
+  - test
+
+default:
+  image: ghcr.io/astral-sh/uv:python3.11-bookworm
+  interruptible: true
+  cache:
+    key: uv-cache-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .uv-cache/
+  before_script:
+    - export UV_CACHE_DIR="$CI_PROJECT_DIR/.uv-cache"
+    - uv sync --extra dev
+
+lint:
+  stage: lint
+  script:
+    - uv run ruff check .
+    - uv run ruff format --check .
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+typecheck:
+  stage: typecheck
+  script:
+    - uv run --python 3.11 --extra dev mypy --strict forgewise tests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+test:
+  stage: test
+  script:
+    - uv run --python 3.11 --extra dev python -m pytest -q --tb=short
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
