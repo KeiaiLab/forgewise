@@ -1,82 +1,86 @@
 # Security Policy
 
+> **English** | [한국어](SECURITY.ko.md) | [日本語](SECURITY.ja.md) | [中文](SECURITY.zh.md)
+
+ForgeWise is a `keiailab` open-source MCP-native developer intelligence tool
+that may handle source code, audit logs, GitLab tokens, and OAuth credentials.
+We take security seriously and appreciate responsible disclosure.
+
 ## Supported Versions
 
-The ForgeWise team provides security updates for the following versions:
+Only the latest minor release of the `0.x` series receives security patches
+during the alpha phase. Once `1.0.0` ships, we will adopt a longer-term
+support window (see `docs/upgrade.md`).
 
-| Version | Support Status |
-|---------|----------------|
-| 0.2.x (current) | ✅ Active security support |
-| 0.1.x | ✅ Security fixes only |
-| < 0.1.0 | ❌ Unsupported (pre-MVP) |
-
-Python 3.11+ is required. Older Python versions are not security-supported.
+| Version | Supported          |
+| ------- | ------------------ |
+| `0.1.x` | Yes (current)      |
+| `< 0.1` | No                 |
 
 ## Reporting a Vulnerability
 
-We take security reports seriously. If you discover a security vulnerability, please report it privately before public disclosure.
+**Please do not file public GitHub issues for security reports.**
 
-### How to Report
+Send the report to **security@keiailab.org** with one of the following channels:
 
-**Preferred Method**: GitHub private vulnerability reporting at https://github.com/keiailab/forgewise/security/advisories — click "Report a vulnerability".
+1. **Preferred — GitHub Security Advisory**
+   File a private advisory at
+   <https://github.com/keiailab/forgewise/security/advisories/new>.
+   This keeps the report private until a fix is published.
+2. **Email** — `security@keiailab.org`. PGP key is published on the
+   organization website.
 
-**Alternative**: Email the maintainer (see `pyproject.toml` `authors` field). Use the subject prefix `[ForgeWise Security]`.
+Include the following:
 
-### What to Include
+- ForgeWise version (output of `forgewise --version`)
+- Environment (OS, Python version, transport — stdio / HTTP)
+- Reproduction steps or proof-of-concept
+- Impact assessment (data exposure, RCE, auth bypass, etc.)
 
-- Affected version(s) and component (`forgewise.mcp_server`, `forgewise.http_server`, `forgewise.llm.*`, etc.)
-- Vulnerability type (auth bypass, injection, secret leak, audit log gap, etc.)
-- Reproduction steps with minimal example
-- Expected vs actual behavior
-- Suggested mitigation (optional)
-- Whether the issue affects ForgeWise core or only optional LLM provider integration
+## Response SLO
 
-We will acknowledge receipt within 7 days and provide an initial assessment within 14 days.
+| Step                                | Target                |
+| ----------------------------------- | --------------------- |
+| Acknowledge receipt                 | 3 business days       |
+| Initial triage + severity rating    | 7 business days       |
+| Patch or documented mitigation      | 30 days from triage   |
+| Public advisory + CHANGELOG entry   | At patch release      |
 
-## Security Boundaries
+Severity follows CVSS 3.1. Critical (CVSS >= 9.0) issues may receive an
+out-of-band release.
 
-ForgeWise is designed with explicit security boundaries documented in `docs/design.md` "엔터프라이즈 경계":
+## Known Security Boundaries
 
-### Default Boundary
+See `docs/security.md` for the full operational baseline. Highlights:
 
-- **Offline / deterministic by default**: no external LLM calls without explicit opt-in
-- **Token masking**: secret values are masked in audit logs before write
-- **Mutation gating**: GitLab REST API mutations require `FORGEWISE_ENABLE_MUTATIONS=1`
-- **Audit log**: all tool invocations recorded to `.forgewise/audit.jsonl`
+- **Mutation gate** — Tools that mutate remote state (`create_issue`,
+  `create_merge_request`, `manage_pipeline`, `create_workitem_note`) are
+  blocked unless `FORGEWISE_ENABLE_MUTATIONS=1`.
+- **OAuth scope** — HTTP transport supports OAuth 2.0 Dynamic Client
+  Registration with PKCE (`plain` / `S256`). Redirect URIs are restricted to
+  `https://`, `127.0.0.1`, and `localhost`.
+- **Audit log masking** — `.forgewise/audit.jsonl` redacts arguments whose
+  keys match `token`, `secret`, `password`, or `key` to `[REDACTED]`.
+- **Prompt-to-artifact policy** — Tool outputs are deterministic. No external
+  LLM call is made by the MVP; consult `docs/security.md` if you attach an
+  in-house LLM router.
 
-### Optional External LLM Boundary (ADR-0001)
+## CVE Handling
 
-When NVIDIA NIM provider is opted-in (`LLM_PROVIDER=nvidia` + `NVIDIA_API_KEY`):
+- Confirmed CVEs are tracked in the project's GitHub Security tab.
+- A `Security` section is added to `CHANGELOG.md` referencing the advisory
+  ID and CVE identifier.
+- Downstream consumers should subscribe to the GitHub Security Advisory feed
+  for this repository.
 
-- Only tools with `requires_llm=True` annotation may invoke external LLM
-- API key is masked in audit log (fingerprint only)
-- Rate-limit aware backoff + retry (429 → exponential, max 4 retry)
-- Graceful degradation to deterministic mode on quota / network failure
-- Audit log captures: model name, prompt SHA-256, response size, latency, masked API key fingerprint
+## If You Suspect a Token or Secret Leak
 
-### Known Limitations
+1. Immediately revoke the affected GitLab token (or other credential) in the
+   originating system.
+2. Inspect `.forgewise/audit.jsonl` — the redaction layer should have masked
+   the value. If a non-masked value appears, report it as a P0 vulnerability.
+3. File a Security Advisory using the channels above.
 
-- ForgeWise does **not** sandbox tool execution. Tool authors are responsible for validating inputs.
-- The OAuth implementation (HTTP transport) follows RFC 7591 (DCR) but has not been independently audited.
-- Vulnerability rules are Python-centric in the current MVP. Other languages have limited analyzer coverage.
-- ForgeWise does **not** automatically apply patches. All mutation operations return suggestions for human review.
+---
 
-## Coordinated Disclosure
-
-We follow a 90-day coordinated disclosure timeline for confirmed vulnerabilities. Public disclosure may be advanced if:
-
-- A working fix is available and deployed
-- The vulnerability is already publicly exploited
-- The reporter requests earlier disclosure
-
-We credit reporters in `CHANGELOG.md` "Security" section unless anonymity is requested.
-
-## Cryptographic Components
-
-ForgeWise relies on:
-
-- Python `hashlib` for SHA-256 (audit log prompt fingerprinting)
-- `httpx` for TLS connections to external API (NVIDIA NIM, GitLab)
-- `secrets` module for OAuth nonce / state generation
-
-No custom cryptographic primitives are implemented. All cryptographic operations use Python standard library or audited third-party packages.
+*This policy is licensed under Apache-2.0 along with the rest of the project.*

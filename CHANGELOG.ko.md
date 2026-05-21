@@ -1,11 +1,14 @@
-# Changelog
+# 변경 이력 (Changelog)
 
-> **English** | [한국어](CHANGELOG.ko.md) | [日本語](CHANGELOG.ja.md) | [中文](CHANGELOG.zh.md)
+> ⚠️ This translation is AI-generated and pending native review. See [한국어 glossary](https://github.com/keiailab/operator-commons/blob/main/docs/i18n/glossary-ko.md) for terminology.
 
-All notable changes to ForgeWise are documented in this file.
+> [English](CHANGELOG.md) | **한국어** | [日本語](CHANGELOG.ja.md) | [中文](CHANGELOG.zh.md)
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ForgeWise 의 모든 주목할 만한 변경은 본 파일에 기록됩니다.
+
+형식은 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 에 기반하며,
+본 프로젝트는 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) 을
+준수합니다.
 
 > **0.x 정책** — `0.x.y` 동안 minor 도 breaking change 가능 (alpha). `1.0.0` 이후
 > SemVer 엄격 적용. 모든 breaking change 는 본 파일의 `### Changed` 또는 `### Removed`
@@ -36,11 +39,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   initial release 준비 중).
 - `docs/kb/adr/0001-python-stack-override-vs-global-go-standards.md` — Python
   스택 override 결정 ADR. Status=Accepted.
+- **S4-D (2026-05-21)**: i18n 4-lang 정합
+  - `BRANDING.{md,ko,ja,zh}.md` 신규 (forgewise 브랜드 정체성 + 상표 고지)
+  - `docs/family.{md,ko,ja,zh}.md` 신규 (5 repo cross-link canonical)
+  - `README.{ja,zh}.md` placeholder → 본문 완전 번역
+  - `docs/installation.{ko,ja,zh}.md` 신규
+  - `docs/configuration.{ko,ja,zh}.md` 신규
+  - `docs/api-reference.{ko,ja,zh}.md` 신규 (33 종 MCP tool 전체 번역)
+  - `docs/upgrade.{ko,ja,zh}.md` 신규
+  - 거버넌스 5종 `SECURITY/CONTRIBUTING/CODE_OF_CONDUCT/CHANGELOG/AGENTS.{ko,ja,zh}.md` 신규
+    (ja/zh 는 placeholder, ko 는 완전 번역)
 
 ### Changed
 
-- `tests/test_governance.py` — 거버넌스 5 종 + 운영 4 종 + `lefthook.yml` +
+- `tests/test_governance.py` — 거버넌스 5종 + 운영 4종 + `lefthook.yml` +
   `AGENTS.md` 키워드 강제 assertion 추가.
+- 거버넌스 5종 + 운영 4종 canonical (EN) 에 language banner (en/ko/ja/zh) 추가.
 
 ### Deprecated
 

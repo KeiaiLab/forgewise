@@ -2,104 +2,96 @@
   <img src="https://keiailab.com/assets/logo.svg" alt="keiailab" width="120"/>
 </p>
 
-# keiailab open-source family
+# keiailab operator family
 
-> Five sister projects: 3 Kubernetes operators + 1 shared Go library + 1 MCP-native developer intelligence tool — all Apache-2.0, all license-clean.
+> Five sister projects sharing a single governance baseline — 3 Kubernetes operators built on `operator-commons` (Go) + 1 MCP-native developer intelligence tool (`forgewise`, Python).
 
 You are reading this from the **`forgewise`** repository. This page is the canonical cross-link for the entire family.
 
 ## Family overview
 
-| Project | Tier | Stack | Database / Surface | Repository |
+| Project | Language | Domain | Status | Repository |
 |---|---|---|---|---|
-| **`operator-commons`** | Library | Go | Shared library — finalizer / labels / status / version | https://github.com/keiailab/operator-commons |
-| **`postgres-operator`** | Operator | Go (controller-runtime) | PostgreSQL 18+ | https://github.com/keiailab/postgres-operator |
-| **`mongodb-operator`** | Operator | Go (controller-runtime) | MongoDB 7.0+ | https://github.com/keiailab/mongodb-operator |
-| **`valkey-operator`** | Operator | Go (controller-runtime) | Valkey 8.0+ (Redis fork, BSD-3) | https://github.com/keiailab/valkey-operator |
-| **`forgewise`** (you are here) | MCP server | Python 3.11+ (FastAPI / httpx) | GitLab / GitHub / Gitea / Forgejo developer assistant | https://github.com/keiailab/forgewise |
-
-## Technology stack matrix
-
-| Aspect | 4 operator projects (commons + 3 DB) | `forgewise` |
-|---|---|---|
-| Language | Go 1.25+ | Python 3.11+ |
-| Runtime target | Kubernetes cluster (controller-runtime + CRDs) | Local CLI + MCP stdio/HTTP server |
-| Deployment | Helm chart + OLM bundle | `uvx forgewise-mcp` / `pip install forgewise` |
-| Surface area | Custom resource reconciliation | MCP tool surface for code forge API |
-| License | Apache-2.0 | Apache-2.0 |
-| Test framework | Go `testing` + envtest + Kuttl | pytest |
+| **`postgres-operator`** | Go | Kubernetes operator (PostgreSQL 18+) | active | https://github.com/keiailab/postgres-operator |
+| **`mongodb-operator`** | Go | Kubernetes operator (MongoDB 7.0+) | active | https://github.com/keiailab/mongodb-operator |
+| **`valkey-operator`** | Go | Kubernetes operator (Valkey 8.0+, Redis fork BSD-3) | active | https://github.com/keiailab/valkey-operator |
+| **`operator-commons`** | Go | Shared Go library for the 3 operators | v0.7.0 | https://github.com/keiailab/operator-commons |
+| **`forgewise`** | Python 3.11+ | MCP-native developer intelligence (GitLab Duo Enterprise-compat) | active (0.1.x alpha) | https://github.com/keiailab/forgewise |
 
 ## What we share
 
-All five projects converge on shared operational primitives:
+All five projects converge on the same governance primitives, even when their stacks differ:
 
-- **Apache-2.0** end-to-end — no SSPL, no AGPL, no BUSL, no copyleft on SaaS surface
-- **No GitHub Actions for release gates** — local 4-layer (lefthook pre-commit / pre-push / Makefile / PR review) + GitLab CI L5 (see RFC-0002, RFC-0043)
-- **i18n** — README + canonical docs in English / 한국어 / 日本語 / 中文
-- **Time-based roadmap deadlines avoided** — feature checklists + 3-state markers (see `standards/roadmap.md §1.1`)
-- **No GitLab Duo trademark in product positioning** — `forgewise` provides capability surface only (see [BRANDING.md §6](../BRANDING.md))
+- **Apache-2.0** end-to-end — no SSPL, no copyleft on SaaS surface
+- **Local 4-layer gates** — pre-commit + pre-push + Makefile + reviewer evidence (`RFC-0002`, GitHub Actions banned)
+- **i18n 4-lang** — README + canonical docs in English / 한국어 / 日本語 / 中文 (Wave 4 of cleanup supercycle 2026-05-21)
+- **DCO + Conventional Commits** — every commit `Signed-off-by:` + `<type>(<scope>)?: <subject>` form
+- **Korean-language commit messages + PR bodies** — keiailab governance baseline (`~/.claude/CLAUDE.md` §2)
+- **Plan/Spec/ADR tracking** — `docs/plans/` + `docs/specs/` + `docs/kb/adr/` per project, with `~/.claude/rfcs/` for cross-project governance
 
-## `forgewise` role in the family
+## What is unique about `forgewise`
 
-This repository is the **MCP-native developer intelligence tool** — *not* a Kubernetes controller. It provides:
+`forgewise` is the only non-Go project in the family. The stack difference is documented in:
 
-| Feature group | MCP tool surface | Tier |
+| Area | Operator family (Go) | `forgewise` (Python) |
 |---|---|---|
-| Code explanation | `explain_code`, `explain_diff` | MVP |
-| Code review | `review_merge_request`, `review_commit` | MVP |
-| Security explanation | `explain_security_finding`, `triage_vulnerability` | MVP |
-| Root cause analysis | `rca_pipeline_failure`, `rca_test_failure` | MVP |
-| Test generation | `generate_tests_for_diff` | MVP |
-| Change summarization | `summarize_merge_request`, `summarize_commit_range` | MVP |
+| Package manager | `go mod` | `uv` (SSOT: `pyproject.toml`) |
+| Lint | `gofmt + go vet + golangci-lint` | `ruff check + ruff format` |
+| Typecheck | `staticcheck` | `mypy --strict` |
+| Test runner | `go test -race ./...` | `pytest -q --strict-markers` |
+| Audit | `govulncheck` | `pip-audit` |
+| Distribution | Helm chart + OLM bundle | PyPI package + container image (GHCR, planned) |
+| Runtime | Kubernetes controller-runtime | MCP server (stdio + HTTP/FastAPI/OAuth 2.0 DCR) |
 
-Design invariant: **deterministic-first**. The current MVP performs static analysis without external LLM calls; the same API surface allows attaching an in-house LLM or self-hosted model router later.
-
-See [README.md](../README.md) for MCP client setup and [docs/design.md](design.md) for the detailed feature surface.
+Full divergence rationale + override matrix: `AGENTS.md` (Tier-3 override) + `docs/kb/adr/0001-python-stack-override-vs-global-go-standards.md`.
 
 ## What we do NOT do
 
-- ❌ **Embed proprietary LLM dependencies** — bring your own model (in-house or self-hosted router) for AI-augmented modes
-- ❌ **GitHub Actions for release gates** — local 4-layer + GitLab CI L5 (see RFC-0002, RFC-0043)
-- ❌ **Time-based roadmap deadlines** — feature checklist + completion percentages (see `standards/roadmap.md §1.1`)
-- ❌ **Direct GitLab Duo brand substitution** — `forgewise` is an *open-source feature-compatible surface*, not a trademark replacement (see [BRANDING.md §6](../BRANDING.md))
-- ❌ **Single-forge lock-in** — every tool surface is forge-neutral (GitLab / GitHub / Gitea / Forgejo)
+- ❌ **GitHub Actions for any release gate** — local 4-layer enforcement (see RFC-0002, incident I-2026-04-28: GHA billing SPOF)
+- ❌ **Embed proprietary upstream code** — `forgewise` provides a *feature-compatible surface* to GitLab Duo Enterprise but never embeds Duo trademark, proprietary code, or model weights
+- ❌ **External LLM calls in MVP** — `forgewise` MVP is deterministic (zero LLM call); in-house LLM router is an opt-in attach point only
+- ❌ **Time-based roadmap deadlines** — feature checklist + completion percentages instead
 
-## Where to start
+## Where to start (`forgewise`-specific)
 
 | Task | Entry point |
 |---|---|
-| Install + run `forgewise` locally | [README.md](../README.md) Quickstart section |
-| Read the architecture / design | [docs/design.md](design.md) |
-| Read the reference grounding | [docs/references.md](references.md) |
+| Install + verify environment | [docs/installation.md](installation.md) |
+| Configure MCP client + OAuth | [docs/configuration.md](configuration.md) |
+| Browse 33 MCP tools | [docs/api-reference.md](api-reference.md) |
+| Upgrade / migration policy | [docs/upgrade.md](upgrade.md) |
+| Read the design context | [docs/design.md](design.md) |
+| Read the security baseline | [docs/security.md](security.md) + [SECURITY.md](../SECURITY.md) |
 | File an issue or feature request | https://github.com/keiailab/forgewise/issues |
 | Discuss design or roadmap | https://github.com/keiailab/forgewise/discussions |
+| Contribute code | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | Report a security issue | [SECURITY.md](../SECURITY.md) |
 | Learn the brand / voice | [BRANDING.md](../BRANDING.md) |
-| Review release history | [CHANGELOG.md](../CHANGELOG.md) |
-| Read security operating standards | [docs/security.md](security.md) |
-| Test plan + framework | [docs/testing.md](testing.md) |
+| Track release history | [CHANGELOG.md](../CHANGELOG.md) |
+| Project-specific AI override | [AGENTS.md](../AGENTS.md) (Tier-3) |
 
 ## Cross-family compatibility
 
-`forgewise` does not depend on the Go operator family at runtime. It can, however, consume the same MCP servers (GitLab MCP, GitHub MCP, etc.) used by the operator family for governance and audit. Cross-family integration boundaries:
+The three database operators import `github.com/keiailab/operator-commons` at the matching version (currently `v0.7.0+`). `forgewise` does *not* import operator-commons (Go ↔ Python boundary) but shares:
 
-| Boundary | Owner | Direction |
-|---|---|---|
-| Code forge API (GitLab / GitHub / Gitea / Forgejo) | `forgewise` | Read + Write |
-| GitLab MCP server (keiailab-gitlab-mcp) | external | `forgewise` may consume |
-| Kubernetes cluster control plane | 3 operator family | `forgewise` does NOT touch |
-| `operator-commons` Go library | 3 operator family | not consumed by `forgewise` (Python) |
+- governance baseline (`~/.claude/CLAUDE.md` Tier-1)
+- ADR / RFC / commit conventions
+- i18n policy (`operator-commons/docs/i18n/README.md` SSOT)
+- glossary terminology (`operator-commons/docs/i18n/glossary-{ko,ja,zh}.md`)
+- pre-commit hook patterns (lefthook)
+
+A breaking change in `operator-commons` requires synchronized bumps across the three Go operators — `forgewise` is unaffected at the API boundary but may pick up shared lefthook / i18n / governance updates via `scripts/sync-from-commons.sh`.
 
 ## i18n
 
-This page (and all canonical project docs) is being localized to four languages over time:
+This page (and all canonical `forgewise` docs) is available in four languages:
 
 - **English** (canonical, this file)
-- 한국어 (planned)
-- 日本語 (planned)
-- 中文 (planned)
+- [한국어](family.ko.md)
+- [日本語](family.ja.md)
+- [中文](family.zh.md)
 
-The current `forgewise` i18n cycle covers `README.md` + `README.ko.md` (active) and `README.ja.md` / `README.zh.md` (placeholder). When in doubt, the English version is authoritative for technical content; localized versions reflect the same decisions in native phrasing.
+When in doubt, the English version is authoritative for technical content; localized versions reflect the same decisions in native phrasing.
 
 ---
 
@@ -112,4 +104,6 @@ The current `forgewise` i18n cycle covers `README.md` + `README.ko.md` (active) 
   <a href="https://github.com/keiailab/forgewise">forgewise</a>
 </p>
 
-<p align="center">© 2026 keiailab · <a href="../LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a></p>
+<p align="center">
+  © 2026 keiailab · <a href="../LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+</p>
