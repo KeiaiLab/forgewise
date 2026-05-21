@@ -27,8 +27,8 @@ Send the report to **security@keiailab.org** with one of the following channels:
    File a private advisory at
    <https://github.com/keiailab/forgewise/security/advisories/new>.
    This keeps the report private until a fix is published.
-2. **Email** — `security@keiailab.org`. PGP key is published on the
-   organization website.
+2. **Email** — `security@keiailab.org`. PGP key:
+   [keiailab.com/security/pgp-public-key.asc](https://keiailab.com/security/pgp-public-key.asc).
 
 Include the following:
 

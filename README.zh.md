@@ -140,6 +140,15 @@ FORGEWISE_LIVE_GITLAB_TOKEN=... FORGEWISE_LIVE_PROJECT_ID=group/project make smo
 
 如果 token 和 project 不存在,smoke 以 skip 结束。
 
+## 贡献与治理
+
+- **贡献指南** — [CONTRIBUTING.md](CONTRIBUTING.md): 开发环境配置、Conventional Commits、DCO 签名、PR 流程。
+- **安全** — [SECURITY.md](SECURITY.md): 漏洞报告、SLO、安全边界。
+- **行为准则** — [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): 社区标准 (Contributor Covenant 2.1)。
+- **代理标准** — [AGENTS.md](AGENTS.md): 面向 AI 编码代理的 Tier-3 项目 override。
+- **路线图** — [ROADMAP.md](ROADMAP.md): 计划功能与发布里程碑。
+- **采用者** — [ADOPTERS.md](ADOPTERS.md): 在生产或评估中使用 ForgeWise 的组织。
+
 详细设计请参见 [docs/design.md](docs/design.md),依据参考请参见
 [docs/references.md](docs/references.md),安全运行基线请参见
 [docs/security.md](docs/security.md)。
