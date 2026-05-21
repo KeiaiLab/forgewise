@@ -2,7 +2,7 @@ PYTHON ?= 3.11
 UV ?= uv
 RUN = $(UV) run --python $(PYTHON) --extra dev
 
-.PHONY: lint typecheck test check smoke-gitlab setup-hooks release audit-quality
+.PHONY: lint typecheck test coverage check smoke-gitlab setup-hooks release audit-quality
 
 lint:
 	$(RUN) ruff check .
@@ -12,6 +12,9 @@ typecheck:
 
 test:
 	$(RUN) python -m pytest
+
+coverage: ## pytest --cov term + xml report. fail_under threshold (pyproject) 위배 시 fail.
+	$(RUN) python -m pytest --cov --cov-report=term --cov-report=xml
 
 check: lint typecheck test
 

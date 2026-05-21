@@ -20,6 +20,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=9.0",
+    "pytest-cov>=7.1",
     "ruff>=0.15",
     "mypy>=2.0",
 ]
@@ -47,3 +48,27 @@ disallow_untyped_defs = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra -q --strict-markers"
+
+[tool.coverage.run]
+source = ["forgewise"]
+branch = true
+omit = [
+    "forgewise/__init__.py",
+    "forgewise/smoke_gitlab.py",  # 라이브 GitLab token 의존, CI 불가
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+show_missing = true
+skip_covered = false
+fail_under = 70  # alpha phase baseline. 0.2.x 에서 80%+ 목표.
+
+[dependency-groups]
+dev = [
+    "pytest-cov>=7.1.0",
+]

@@ -6,6 +6,10 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 .forgewise/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 .DS_Store
 # lefthook local override (개발자별 우회 — repo 미공유)
 .lefthook-local.yml
