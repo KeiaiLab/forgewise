@@ -95,10 +95,12 @@ pre-push:
     py-test:
       run: uv run --python 3.11 --extra dev python -m pytest -q
     py-audit:
-      # pip-audit 미설치 graceful skip — 별 후속 (CONTRIBUTING.md 안내)
+      # pip-audit 미설치 또는 실행 불가 (pyenv shim w/o active Python install) graceful skip.
+      # 별 후속 (CONTRIBUTING.md 안내). bug fix: `command -v` 가 pyenv shim path 만 잡고 실
+      # 실행 시 `command not found` (pyenv error) → 실 작동 verify 강화.
       run: |
-        if ! command -v pip-audit >/dev/null 2>&1; then
-          echo "py-audit: pip-audit 미설치 — graceful skip (uv tool install pip-audit 권장)"
+        if ! pip-audit --version >/dev/null 2>&1; then
+          echo "py-audit: pip-audit 실행 불가 — graceful skip (uv tool install pip-audit 권장)"
           exit 0
         fi
         pip-audit

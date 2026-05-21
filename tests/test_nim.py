@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 from unittest import mock
 
 import httpx
@@ -19,7 +20,11 @@ from forgewise.nim_client import (
 from forgewise.tools import McpToolError, ToolRuntime, call_tool
 
 
-def _mock_response(status: int, json_body: dict | None = None, headers: dict | None = None):
+def _mock_response(
+    status: int,
+    json_body: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
+) -> httpx.Response:
     return httpx.Response(
         status_code=status,
         json=json_body or {},
