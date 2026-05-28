@@ -234,6 +234,47 @@ PASS
 
 변경성 tool 은 smoke 에 포함되지 않음 (운영 환경 부수 효과 회피).
 
+## Prometheus metrics
+
+ForgeWise HTTP server exposes a `/metrics` endpoint in
+[Prometheus text format](https://prometheus.io/docs/instrumenting/exposition_formats/)
+when `prometheus-client` is installed.
+
+### Installation
+
+```bash
+# explicit optional dependency
+pip install 'forgewise[metrics]'
+# or via uv
+uv pip install 'forgewise[metrics]'
+```
+
+If `prometheus-client` is **not** installed, the `/metrics` route is not
+registered and all metric recording calls become no-ops. No error is raised.
+
+### Exposed metrics
+
+| Metric | Type | Labels | Description |
+|---|---|---|---|
+| `forgewise_tool_calls_total` | Counter | `tool` | Total MCP tool invocations |
+| `forgewise_request_duration_seconds` | Histogram | _(none)_ | Tool call processing time |
+| `forgewise_errors_total` | Counter | `type` | Error count by type (`mcp_tool_error`, `runtime_error`) |
+
+### Prometheus scrape config example
+
+```yaml
+scrape_configs:
+  - job_name: forgewise
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["localhost:8080"]
+```
+
+### Environment variable
+
+No additional environment variable is required. The endpoint is enabled
+automatically when the library is importable.
+
 ## 분석 결과 — tool 카운트
 
 ForgeWise 0.1.0 은 총 **33 종 MCP tool** 을 제공:

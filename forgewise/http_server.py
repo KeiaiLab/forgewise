@@ -12,9 +12,10 @@ from urllib.parse import parse_qs
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 
 from forgewise.logging import setup_logging
+from forgewise.metrics import metrics_available, render_metrics
 from forgewise.oauth import OAuthStore
 from forgewise.protocol import handle_json_rpc
 
@@ -100,6 +101,13 @@ def create_app(config: HttpServerConfig | None = None) -> FastAPI:
             raise HTTPException(status_code=400, detail="JSON-RPC object가 필요합니다.")
         prefix = request.headers.get("X-Gitlab-Mcp-Server-Tool-Name-Prefix", "")
         return handle_json_rpc(payload, root=active.repo_root, tool_prefix=prefix)
+
+    if metrics_available():
+
+        @app.get("/metrics")
+        async def prometheus_metrics() -> Response:
+            body, content_type = render_metrics()
+            return Response(content=body, media_type=content_type)
 
     return app
 
