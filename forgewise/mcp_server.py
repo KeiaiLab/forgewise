@@ -26,6 +26,9 @@ def main() -> int:
         sys.stdout.flush()
 
 
+_MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB
+
+
 def _read_content_length_message(stream: BinaryIO) -> str | None:
     headers: dict[str, str] = {}
     while True:
@@ -37,8 +40,11 @@ def _read_content_length_message(stream: BinaryIO) -> str | None:
             break
         key, _, value = line.partition(":")
         headers[key.lower()] = value.strip()
-    length = int(headers.get("content-length", "0"))
-    if length <= 0:
+    try:
+        length = int(headers.get("content-length", "0"))
+    except ValueError:
+        return None
+    if length <= 0 or length > _MAX_CONTENT_LENGTH:
         return None
     return stream.read(length).decode("utf-8")
 
