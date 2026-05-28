@@ -549,7 +549,18 @@ def _gitlab_connection_schema() -> dict[str, Any]:
             "GitLab base URL. 기본값은 GITLAB_BASE_URL 또는 https://gitlab.com"
         ),
         "gitlab_token": _string_schema("GitLab API token. 기본값은 GITLAB_TOKEN"),
-        "gitlab_timeout": {"type": "number", "description": "GitLab API timeout seconds"},
+        "gitlab_timeout": {
+            "type": "number",
+            "description": "GitLab API timeout seconds (하위 호환: connect/read 양쪽 적용)",
+        },
+        "gitlab_connect_timeout": {
+            "type": "number",
+            "description": "GitLab API connect timeout seconds. 기본값 5초",
+        },
+        "gitlab_read_timeout": {
+            "type": "number",
+            "description": "GitLab API read timeout seconds. 기본값 30초",
+        },
     }
 
 

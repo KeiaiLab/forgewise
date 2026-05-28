@@ -113,6 +113,36 @@ Redirect URI 허용 패턴:
 
 다른 스킴은 client 등록 자체 거부.
 
+## GitLab API timeout
+
+ForgeWise separates the HTTP connection timeout and read timeout for
+GitLab API calls. This allows short connection deadlines while giving
+large responses (e.g., diff lists) enough time to complete.
+
+| Environment variable | Tool argument | Default | Description |
+|---|---|---|---|
+| `GITLAB_CONNECT_TIMEOUT` | `gitlab_connect_timeout` | `5` (seconds) | TCP connection timeout |
+| `GITLAB_READ_TIMEOUT` | `gitlab_read_timeout` | `30` (seconds) | Response read timeout |
+| `GITLAB_TIMEOUT` | `gitlab_timeout` | -- | **Legacy / backward-compatible.** When set, applies to both connect and read unless the specific variable overrides it. |
+
+Priority (highest wins):
+
+1. Specific variable (`GITLAB_CONNECT_TIMEOUT` / `GITLAB_READ_TIMEOUT`)
+2. Legacy single variable (`GITLAB_TIMEOUT`)
+3. Built-in default (`5` / `30`)
+
+Example -- raise read timeout only:
+
+```bash
+export GITLAB_READ_TIMEOUT=60
+```
+
+Example -- legacy single value (both set to 15 s):
+
+```bash
+export GITLAB_TIMEOUT=15
+```
+
 ## GitLab API 인증
 
 GitLab REST API 호출에는 token 이 필요하다. ForgeWise 는 다음 우선순위로 token 을
