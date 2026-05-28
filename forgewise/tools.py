@@ -356,7 +356,7 @@ def call_tool(name: str, arguments: dict[str, Any], runtime: ToolRuntime) -> dic
     if normalized not in tools:
         raise McpToolError(f"unknown tool: {name}")
     tool = tools[normalized]
-    _validate_required(tool, arguments)
+    _validate_schema(tool, arguments)
     root = _resolve_root(runtime.root, arguments)
     child_runtime = ToolRuntime(root=root, gitlab_http_client=runtime.gitlab_http_client)
     result = tool.handler(child_runtime, dict(arguments))
@@ -368,6 +368,49 @@ def _validate_required(tool: ToolDefinition, arguments: dict[str, Any]) -> None:
     missing = [key for key in tool.required if key not in arguments or arguments[key] in (None, "")]
     if missing:
         raise McpToolError(f"필수 인자가 없습니다: {', '.join(missing)}")
+
+
+# JSON Schema type -> Python 타입 매핑 (경량 검증용)
+_JSON_TYPE_MAP: dict[str, tuple[type, ...]] = {
+    "string": (str,),
+    "integer": (int,),
+    "number": (int, float),
+    "boolean": (bool,),
+    "object": (dict,),
+}
+
+
+def _validate_schema(tool: ToolDefinition, arguments: dict[str, Any]) -> None:
+    """inputSchema 의 required + type 제약을 검증한다.
+
+    외부 의존성 없이 경량으로 구현한다.
+    실패 시 JSON-RPC -32602 (Invalid params) McpToolError 를 발생시킨다.
+    """
+    # 1) required 검증
+    _validate_required(tool, arguments)
+
+    # 2) type 검증 -- 선언된 properties 에 값이 존재할 때만 검사
+    properties = tool.properties
+    for key, value in arguments.items():
+        if key not in properties:
+            continue
+        prop_schema = properties[key]
+        declared_type = prop_schema.get("type")
+        if declared_type is None or value is None:
+            continue
+        expected = _JSON_TYPE_MAP.get(declared_type)
+        if expected is None:
+            continue
+        # JSON 에서 bool 은 int 의 하위 클래스이므로 integer/number 일 때 bool 은 거부
+        if declared_type in ("integer", "number") and isinstance(value, bool):
+            raise McpToolError(
+                f"인자 '{key}' 의 타입이 올바르지 않습니다: 기대={declared_type}, 실제=boolean"
+            )
+        if not isinstance(value, expected):
+            actual = type(value).__name__
+            raise McpToolError(
+                f"인자 '{key}' 의 타입이 올바르지 않습니다: 기대={declared_type}, 실제={actual}"
+            )
 
 
 def _resolve_root(default_root: Path, arguments: dict[str, Any]) -> Path:
