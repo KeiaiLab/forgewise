@@ -59,15 +59,29 @@ GitLab MCP server 호환 tool도 함께 제공합니다.
 
 ## 설치
 
+PyPI에서 설치:
+
 ```bash
-uv run --python 3.11 --extra dev python -m pytest
+pip install forgewise
 ```
 
-개발 설치:
+또는 [uv](https://docs.astral.sh/uv/) 사용:
+
+```bash
+uv pip install forgewise
+```
+
+### 개발 설치
 
 ```bash
 uv sync --python 3.11 --extra dev
 uv run forgewise --repo . review
+```
+
+테스트 실행:
+
+```bash
+uv run --python 3.11 --extra dev python -m pytest
 ```
 
 ## CLI 예시

@@ -17,6 +17,13 @@ dependencies = [
     "uvicorn>=0.38",
 ]
 
+[project.urls]
+Homepage = "https://github.com/keiailab/forgewise"
+Repository = "https://github.com/keiailab/forgewise"
+Documentation = "https://github.com/keiailab/forgewise/tree/main/docs"
+Changelog = "https://github.com/keiailab/forgewise/blob/main/CHANGELOG.md"
+Issues = "https://github.com/keiailab/forgewise/issues"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=9.0",

@@ -64,15 +64,29 @@ GitLab MCP server compatible tools are also provided.
 
 ## Installation
 
+Install from PyPI:
+
 ```bash
-uv run --python 3.11 --extra dev python -m pytest
+pip install forgewise
 ```
 
-Development install:
+Or with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv pip install forgewise
+```
+
+### Development install
 
 ```bash
 uv sync --python 3.11 --extra dev
 uv run forgewise --repo . review
+```
+
+Run tests:
+
+```bash
+uv run --python 3.11 --extra dev python -m pytest
 ```
 
 ## CLI Examples
