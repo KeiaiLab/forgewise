@@ -59,15 +59,29 @@ CLI 命令为 `forgewise`,stdio MCP server 命令为 `forgewise-mcp`,HTTP MCP se
 
 ## 安装
 
+从 PyPI 安装:
+
 ```bash
-uv run --python 3.11 --extra dev python -m pytest
+pip install forgewise
 ```
 
-开发安装:
+或使用 [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv pip install forgewise
+```
+
+### 开发安装
 
 ```bash
 uv sync --python 3.11 --extra dev
 uv run forgewise --repo . review
+```
+
+运行测试:
+
+```bash
+uv run --python 3.11 --extra dev python -m pytest
 ```
 
 ## CLI 示例

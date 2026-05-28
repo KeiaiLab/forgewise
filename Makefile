@@ -2,7 +2,7 @@ PYTHON ?= 3.11
 UV ?= uv
 RUN = $(UV) run --python $(PYTHON) --extra dev
 
-.PHONY: lint typecheck test check smoke-gitlab setup-hooks release audit-quality
+.PHONY: lint typecheck test check smoke-gitlab setup-hooks release publish audit-quality
 
 lint:
 	$(RUN) ruff check .
@@ -26,6 +26,12 @@ setup-hooks:
 release: ## 자동 release pipeline (scripts/release.sh). 사용: make release VERSION=v0.1.0
 	@[ -n "$(VERSION)" ] || { echo "Usage: make release VERSION=v0.1.0"; exit 1; }
 	bash scripts/release.sh $(VERSION)
+
+publish: ## PyPI 게시: wheel + sdist 빌드 후 uv publish. 사용: make publish
+	rm -rf dist/
+	$(UV) build
+	$(UV) publish
+	@echo "PyPI publish 완료"
 
 audit-quality: ## 5 repo production-grade 자동 측정 (commons SSOT, ADR-0013).
 	@bash ../operator-commons/scripts/audit-production-grade.sh ..

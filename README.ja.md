@@ -59,15 +59,29 @@ GitLab MCP server 互換 tool も併せて提供します。
 
 ## インストール
 
+PyPI からインストール:
+
 ```bash
-uv run --python 3.11 --extra dev python -m pytest
+pip install forgewise
 ```
 
-開発インストール:
+または [uv](https://docs.astral.sh/uv/) を使用:
+
+```bash
+uv pip install forgewise
+```
+
+### 開発インストール
 
 ```bash
 uv sync --python 3.11 --extra dev
 uv run forgewise --repo . review
+```
+
+テスト実行:
+
+```bash
+uv run --python 3.11 --extra dev python -m pytest
 ```
 
 ## CLI 例

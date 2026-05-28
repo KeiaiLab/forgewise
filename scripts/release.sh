@@ -15,14 +15,14 @@
 #   7. python build — uv build → dist/.
 #   8. tag + push origin.
 #   9. gh release create — dist/ artifact 첨부.
-#  10. (옵션) PyPI publish — twine upload (수동 결정).
+#  10. (옵션) PyPI publish — uv publish (수동 결정).
+#  11. 완료 요약 + 다음 단계 안내.
 #
 # 사전조건:
 #   - git remote 'origin' 설정 + main branch 권한.
-#   - uv 설치 (https://docs.astral.sh/uv/).
+#   - uv 설치 (https://docs.astral.sh/uv/), 0.4+ (uv publish 지원).
 #   - gh CLI 인증 (gh auth status).
-#   - (선택) twine 설치 — PyPI publish (uv tool install twine).
-#   - (선택) git-cliff — CHANGELOG/release body 자동 (brew install git-cliff).
+#   - (선택) git-cliff — CHANGELOG/release body 자동화 (brew install git-cliff).
 #
 # RFC-0002 정합: 본 스크립트는 *수동* 실행. GHA 미사용 (forgewise 는
 # .github/workflows/ 부재 — Python 패키지 native CI/CD 부재 정책).
@@ -134,21 +134,19 @@ else
 fi
 
 # 10. (옵션) PyPI publish
-if command -v twine >/dev/null 2>&1; then
-  read -p "📤 PyPI publish (twine upload dist/*)? (y/N) " ans
-  if [[ "$ans" == "y" ]]; then
-    twine upload dist/*
-  else
-    echo "   skip (twine upload dist/* 수동 실행 가능)"
-  fi
+read -p "📤 PyPI publish (uv publish)? (y/N) " ans
+if [[ "$ans" == "y" ]]; then
+  uv publish
+  echo "   → PyPI publish 완료"
 else
-  echo "   twine 미설치 — PyPI publish skip (uv tool install twine 권장)"
+  echo "   skip (make publish 또는 uv publish 수동 실행 가능)"
 fi
 
+# 11. 완료 요약
 echo "✅ Release $VERSION complete."
 echo ""
 echo "다음 단계:"
 echo "  1. CHANGELOG.md 의 [Unreleased] 섹션 정리"
 echo "  2. ROADMAP.md 의 v$VERSION_NUMERIC 항목 ✅ 마킹"
-echo "  3. (PyPI publish 안 한 경우) twine upload dist/* 수동 실행"
+echo "  3. (PyPI publish 안 한 경우) make publish 수동 실행"
 echo "  4. release announce (Slack / Twitter / community)"
