@@ -1,0 +1,51 @@
+# docker-compose.e2e.yml — GitLab CE 로컬 E2E 테스트 환경
+#
+# 사용법:
+#   docker compose -f docker-compose.e2e.yml up -d
+#   # GitLab CE 부팅 대기 (3-5분)
+#   FORGEWISE_E2E=1 GITLAB_TOKEN=e2e-test-token GITLAB_BASE_URL=http://localhost:9080 \
+#     uv run --extra dev python -m pytest tests/test_e2e_gitlab.py -v
+#
+# 주의: GitLab CE 최초 기동은 3-5분 소요. health check 통과 후 테스트 실행.
+
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    hostname: gitlab.local
+    ports:
+      - "9080:80"
+      - "9443:443"
+      - "9022:22"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.local'
+        gitlab_rails['initial_root_password'] = 'e2e-root-password'
+        # 리소스 절약: 불필요 서비스 비활성화
+        prometheus_monitoring['enable'] = false
+        grafana['enable'] = false
+        alertmanager['enable'] = false
+        gitlab_kas['enable'] = false
+        gitlab_pages['enable'] = false
+        registry['enable'] = false
+        mattermost['enable'] = false
+        # Personal Access Token 자동 생성 (Rails console seed)
+        gitlab_rails['env'] = {
+          'GITLAB_SEED_E2E_TOKEN' => 'e2e-test-token'
+        }
+    volumes:
+      - gitlab-config:/etc/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-data:/var/opt/gitlab
+      - ./scripts/gitlab-e2e-seed.sh:/opt/gitlab-e2e-seed.sh:ro
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/-/readiness"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 180s
+    shm_size: "256m"
+
+volumes:
+  gitlab-config:
+  gitlab-logs:
+  gitlab-data:
