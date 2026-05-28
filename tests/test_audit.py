@@ -17,7 +17,6 @@ from forgewise.audit import (
     write_audit,
 )
 
-
 # ---------------------------------------------------------------------------
 # 헬퍼
 # ---------------------------------------------------------------------------
@@ -46,7 +45,7 @@ def _write_n(root: Path, n: int, *, max_bytes: int, max_files: int) -> None:
 
 
 def test_write_audit_creates_jsonl_record(tmp_path: Path) -> None:
-    args = {"repo": "/tmp/r", "path": "a.py"}
+    args = {"repo": str(tmp_path / "r"), "path": "a.py"}
     write_audit(tmp_path, "code_explanation", args, {"feature": "code_explanation"})
 
     audit_file = tmp_path / ".forgewise" / "audit.jsonl"
