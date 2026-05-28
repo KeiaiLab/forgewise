@@ -4,6 +4,9 @@
 
 > [English](README.md) | [한국어](README.ko.md) | [日本語](README.ja.md) | **中文**
 
+[![keiailab v3.x-stable](https://img.shields.io/badge/keiailab-v3.x--stable-success?style=flat-square)](https://github.com/keiailab/operator-commons/blob/main/docs/quality/audit-history.md)
+[![audit](https://img.shields.io/badge/audit-100%25-success?style=flat-square)](https://github.com/keiailab/operator-commons/blob/main/scripts/audit-production-grade.sh)
+
 ForgeWise 是一个 `keiailab` 项目,以开源、本地执行、MCP-native 工具表面方式
 实现 GitLab Duo Enterprise 类开发辅助功能。
 
