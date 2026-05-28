@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
+from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 
-from forgewise.http_server import HttpServerConfig, create_app
+from forgewise.http_server import (
+    HttpServerConfig,
+    RateLimitMiddleware,
+    _parse_rate_limit,
+    create_app,
+)
 
 
 def test_http_mcp_endpoint_lists_prefixed_tools(tmp_path: Path) -> None:
@@ -402,3 +410,149 @@ def test_http_refresh_via_form_urlencoded(tmp_path: Path) -> None:
     assert resp.status_code == 200
     assert resp.json()["access_token"]
     assert resp.json()["refresh_token"]
+
+
+# ---------------------------------------------------------------------------
+# 헬퍼
+# ---------------------------------------------------------------------------
+
+
+def _make_client(tmp_path: Path, **env_overrides: str) -> TestClient:
+    with patch.dict(os.environ, env_overrides, clear=False):
+        app = create_app(
+            HttpServerConfig(
+                repo_root=tmp_path,
+                oauth_store_path=tmp_path / "oauth.db",
+            )
+        )
+    return TestClient(app)
+
+
+# ---------------------------------------------------------------------------
+# Rate Limiting 테스트
+# ---------------------------------------------------------------------------
+
+
+def test_rate_limit_returns_429_when_exceeded(tmp_path: Path) -> None:
+    client = _make_client(tmp_path, FORGEWISE_RATE_LIMIT="3/minute")
+    for _i in range(3):
+        resp = client.get("/healthz")
+        assert resp.status_code == 200
+    resp = client.get("/healthz")
+    assert resp.status_code == 429
+    assert "요청 한도" in resp.json()["detail"]
+
+
+def test_rate_limit_default_allows_60_per_minute(tmp_path: Path) -> None:
+    client = _make_client(tmp_path)
+    for _ in range(60):
+        resp = client.get("/healthz")
+        assert resp.status_code == 200
+    resp = client.get("/healthz")
+    assert resp.status_code == 429
+
+
+def test_parse_rate_limit_valid_specs() -> None:
+    assert _parse_rate_limit("60/minute") == (60, 60.0)
+    assert _parse_rate_limit("100/hour") == (100, 3600.0)
+    assert _parse_rate_limit("10/second") == (10, 1.0)
+
+
+def test_parse_rate_limit_invalid_format() -> None:
+    with pytest.raises(ValueError, match="잘못된 rate limit 형식"):
+        _parse_rate_limit("invalid")
+
+
+def test_parse_rate_limit_invalid_unit() -> None:
+    with pytest.raises(ValueError, match="지원하지 않는 시간 단위"):
+        _parse_rate_limit("60/day")
+
+
+# ---------------------------------------------------------------------------
+# CORS 테스트
+# ---------------------------------------------------------------------------
+
+
+def test_cors_disabled_when_env_not_set(tmp_path: Path) -> None:
+    env = {
+        k: v for k, v in os.environ.items()
+        if k != "FORGEWISE_CORS_ORIGINS"
+    }
+    with patch.dict(os.environ, env, clear=True):
+        app = create_app(
+            HttpServerConfig(
+                repo_root=tmp_path,
+                oauth_store_path=tmp_path / "oauth.db",
+            )
+        )
+    client = TestClient(app)
+    resp = client.options(
+        "/healthz",
+        headers={
+            "Origin": "http://example.com",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert "access-control-allow-origin" not in resp.headers
+
+
+def test_cors_enabled_with_matching_origin(tmp_path: Path) -> None:
+    client = _make_client(
+        tmp_path,
+        FORGEWISE_CORS_ORIGINS="http://example.com,http://localhost:3000",
+    )
+    resp = client.get(
+        "/healthz",
+        headers={"Origin": "http://example.com"},
+    )
+    assert (
+        resp.headers.get("access-control-allow-origin")
+        == "http://example.com"
+    )
+
+
+def test_cors_rejects_non_matching_origin(tmp_path: Path) -> None:
+    client = _make_client(
+        tmp_path,
+        FORGEWISE_CORS_ORIGINS="http://example.com",
+    )
+    resp = client.get(
+        "/healthz",
+        headers={"Origin": "http://evil.com"},
+    )
+    assert (
+        resp.headers.get("access-control-allow-origin")
+        != "http://evil.com"
+    )
+
+
+# ---------------------------------------------------------------------------
+# 글로벌 예외 핸들러 테스트
+# ---------------------------------------------------------------------------
+
+
+def test_global_exception_handler_returns_500_json(
+    tmp_path: Path,
+) -> None:
+    app = create_app(
+        HttpServerConfig(
+            repo_root=tmp_path,
+            oauth_store_path=tmp_path / "oauth.db",
+        )
+    )
+
+    @app.get("/test-boom")
+    async def boom() -> None:
+        raise RuntimeError("boom")
+
+    client = TestClient(app, raise_server_exceptions=False)
+    resp = client.get("/test-boom")
+    assert resp.status_code == 500
+    body = resp.json()
+    assert "내부 서버 오류" in body["detail"]
+    assert "boom" not in body.get("detail", "")
+    assert "Traceback" not in resp.text
+
+
+def test_rate_limit_middleware_is_importable() -> None:
+    assert RateLimitMiddleware is not None

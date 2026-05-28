@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -12,7 +13,9 @@ from urllib.parse import parse_qs
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import RedirectResponse, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, RedirectResponse, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from forgewise.logging import setup_logging
 from forgewise.metrics import metrics_available, render_metrics
@@ -21,6 +24,47 @@ from forgewise.protocol import handle_json_rpc
 
 logger = logging.getLogger(__name__)
 
+
+
+def _parse_rate_limit(spec: str) -> tuple[int, float]:
+    parts = spec.strip().split("/")
+    if len(parts) != 2:
+        raise ValueError(f"잘못된 rate limit 형식: {spec!r}")
+    max_requests = int(parts[0])
+    unit = parts[1].lower()
+    unit_map: dict[str, float] = {"second": 1.0, "minute": 60.0, "hour": 3600.0}
+    window = unit_map.get(unit)
+    if window is None:
+        raise ValueError(f"지원하지 않는 시간 단위: {unit!r} (second/minute/hour)")
+    return max_requests, window
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """IP 당 고정 윈도우 rate limiter."""
+
+    def __init__(
+        self, app: FastAPI, max_requests: int, window_seconds: float
+    ) -> None:
+        super().__init__(app)
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self._buckets: dict[str, tuple[float, int]] = {}
+
+    async def dispatch(self, request: Request, call_next: Any) -> Any:
+        client_ip = request.client.host if request.client else "unknown"
+        now = time.monotonic()
+        start, count = self._buckets.get(client_ip, (now, 0))
+        if now - start >= self.window_seconds:
+            start, count = now, 0
+        count += 1
+        self._buckets[client_ip] = (start, count)
+        if count > self.max_requests:
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "요청 한도를 초과했습니다. 잠시 후 다시 시도하세요."},
+            )
+        response: Any = await call_next(request)
+        return response
 
 @dataclass(frozen=True)
 class HttpServerConfig:
@@ -33,6 +77,33 @@ def create_app(config: HttpServerConfig | None = None) -> FastAPI:
     active = config or _config_from_env()
     oauth_store = OAuthStore(active.oauth_store_path)
     app = FastAPI(title="ForgeWise GitLab MCP", version="0.2.0")
+
+    @app.exception_handler(Exception)
+    async def _global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+        logger.exception("처리되지 않은 예외 발생: %s %s", request.method, request.url)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "내부 서버 오류가 발생했습니다."},
+        )
+
+    cors_origins_raw = os.getenv("FORGEWISE_CORS_ORIGINS", "")
+    if cors_origins_raw.strip():
+        origins = [o.strip() for o in cors_origins_raw.split(",") if o.strip()]
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+    rate_limit_spec = os.getenv("FORGEWISE_RATE_LIMIT", "60/minute")
+    rl_max, rl_window = _parse_rate_limit(rate_limit_spec)
+    app.add_middleware(
+        RateLimitMiddleware,  # type: ignore[arg-type]
+        max_requests=rl_max,
+        window_seconds=rl_window,
+    )
 
     @app.get("/healthz")
     async def healthz() -> dict[str, str]:
