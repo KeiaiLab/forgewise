@@ -20,6 +20,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=9.0",
+    "pytest-cov>=6.0",
     "ruff>=0.15",
     "mypy>=2.0",
 ]
@@ -46,4 +47,4 @@ disallow_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra -q --strict-markers"
+addopts = "-ra -q --strict-markers --cov=forgewise --cov-report=term-missing"
