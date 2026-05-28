@@ -64,3 +64,6 @@ disallow_untyped_defs = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra -q --strict-markers --cov=forgewise --cov-report=term-missing"
+markers = [
+    "e2e: 실 GitLab CE 인스턴스 연동 E2E 테스트 (FORGEWISE_E2E=1 필요)",
+]
