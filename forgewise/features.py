@@ -213,8 +213,8 @@ def _summarize_code(path: str, text: str) -> str:
 
 def _git_diff(root: Path, base: str) -> str:
     try:
-        proc = subprocess.run(
-            ["git", "diff", "--stat", "--find-renames", base],
+        proc = subprocess.run(  # noqa: S603
+            ["git", "diff", "--stat", "--find-renames", base],  # noqa: S607
             cwd=root,
             text=True,
             capture_output=True,
