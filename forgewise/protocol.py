@@ -8,6 +8,7 @@ from typing import Any
 
 import httpx
 
+from forgewise.llm import LLMClient
 from forgewise.metrics import record_error, record_tool_call, track_duration
 from forgewise.tools import McpToolError, ToolRuntime, call_tool, list_tools
 
@@ -21,6 +22,7 @@ def handle_json_rpc(
     root: Path | str = ".",
     tool_prefix: str = "",
     gitlab_http_client: httpx.Client | None = None,
+    llm: LLMClient | None = None,
 ) -> dict[str, Any]:
     method = str(message.get("method", ""))
     msg_id = message.get("id")
@@ -40,7 +42,7 @@ def handle_json_rpc(
     if method == "tools/list":
         return {"jsonrpc": "2.0", "id": msg_id, "result": {"tools": list_tools(prefix=tool_prefix)}}
     if method == "tools/call":
-        return _handle_tool_call(msg_id, message, Path(root), tool_prefix, gitlab_http_client)
+        return _handle_tool_call(msg_id, message, Path(root), tool_prefix, gitlab_http_client, llm)
     return _error(msg_id, -32601, f"unknown method: {method}")
 
 
@@ -50,12 +52,13 @@ def _handle_tool_call(
     root: Path,
     tool_prefix: str,
     gitlab_http_client: httpx.Client | None,
+    llm: LLMClient | None,
 ) -> dict[str, Any]:
     params = _dict(message.get("params"))
     raw_name = str(params.get("name", ""))
     name = _strip_prefix(raw_name, tool_prefix)
     arguments = _dict(params.get("arguments"))
-    runtime = ToolRuntime(root=root.resolve(), gitlab_http_client=gitlab_http_client)
+    runtime = ToolRuntime(root=root.resolve(), gitlab_http_client=gitlab_http_client, llm=llm)
 
     record_tool_call(name)
     with track_duration():

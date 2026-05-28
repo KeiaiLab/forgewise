@@ -284,6 +284,73 @@ ForgeWise 0.1.0 은 총 **33 종 MCP tool** 을 제공:
 
 상세 카탈로그는 `docs/api-reference.md` 참조.
 
+## LLM 백엔드 (AI 강화 기능)
+
+ForgeWise 의 7 개 핵심 도구는 선택적 LLM 백엔드를 통해 AI 강화 응답을
+제공한다. LLM 미설정 시 기존 결정론적 분석 결과를 그대로 반환하며, 설정 시
+AI 가 생성한 자연어 설명이 응답에 추가된다.
+
+### 지원 백엔드
+
+| 백엔드 | 설명 | 대표 모델 |
+|---|---|---|
+| `none` (기본) | AI 기능 비활성. 기존 동작 100% 유지. | -- |
+| `ollama` | 로컬 Ollama 서버. `/api/generate` non-streaming. | `llama3.2`, `codellama` |
+| `openai` | OpenAI-compatible API. `/v1/chat/completions`. | `gpt-4o-mini`, `gpt-4o` |
+
+### 환경 변수
+
+| 환경 변수 | 기본값 | 설명 |
+|---|---|---|
+| `FORGEWISE_LLM_BACKEND` | `none` | `ollama`, `openai`, `none` 중 택일 |
+| `FORGEWISE_LLM_BASE_URL` | (백엔드별) | Ollama: `http://localhost:11434`, OpenAI: `https://api.openai.com` |
+| `FORGEWISE_LLM_MODEL` | (백엔드별) | Ollama: `llama3.2`, OpenAI: `gpt-4o-mini` |
+| `FORGEWISE_LLM_API_KEY` | (빈 문자열) | OpenAI 호환 API 키. OpenAI 백엔드 사용 시 필수. |
+| `FORGEWISE_LLM_TIMEOUT` | `60` | LLM 요청 타임아웃 (초) |
+| `FORGEWISE_LLM_MAX_TOKENS` | `2048` | 최대 생성 토큰 수 |
+
+### AI 강화 도구
+
+| 도구 | AI 적용 필드 | 설명 |
+|---|---|---|
+| `duo_chat` | `answer` | 코드 컨텍스트 기반 자연어 질의 응답 |
+| `code_explanation` | `summary` | 코드 조각의 자연어 설명 |
+| `code_review` | `ai_comments` | 코드 리뷰 finding 에 대한 AI 코멘트 |
+| `merge_request_summary` | `ai_summary` | diff 요약 자연어 설명 |
+| `merge_commit_message_generation` | `message` | AI 생성 커밋 메시지 |
+| `issue_description_generation` | `body` | AI 생성 이슈 본문 |
+| `root_cause_analysis` | `ai_analysis` | 스택트레이스 근본 원인 분석 |
+
+### 핵심 원칙
+
+- LLM 미설정 시 기존 동작 100% 동일 (regression 없음)
+- LLM 호출 실패 시 빈 문자열 반환 -- 기존 결과 그대로 유지
+- 각 도구의 기존 필드는 변경하지 않음, AI 결과는 덮어쓰기 또는 새 필드로 추가
+
+### Ollama 설정 예시
+
+```bash
+export FORGEWISE_LLM_BACKEND=ollama
+export FORGEWISE_LLM_MODEL=codellama
+# Ollama 서버가 localhost:11434 에서 실행 중이어야 함
+```
+
+### OpenAI 호환 API 설정 예시
+
+```bash
+export FORGEWISE_LLM_BACKEND=openai
+export FORGEWISE_LLM_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
+export FORGEWISE_LLM_MODEL=gpt-4o-mini
+```
+
+### 자체 호스팅 OpenAI 호환 서버 (vLLM, LM Studio 등)
+
+```bash
+export FORGEWISE_LLM_BACKEND=openai
+export FORGEWISE_LLM_BASE_URL=http://localhost:8000
+export FORGEWISE_LLM_MODEL=your-model-name
+```
+
 ## 다음 단계
 
 - 설치: `docs/installation.md`

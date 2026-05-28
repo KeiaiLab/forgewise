@@ -15,13 +15,21 @@ from forgewise.analysis import (
     retrieve_context,
     test_skeleton_for_python,
 )
+from forgewise.llm import LLMClient
 from forgewise.repository import Repository, line_slice
 from forgewise.security import security_findings, security_fixes
 
+# LLM 시스템 프롬프트 (영어 — LLM 성능 최적화, 한국어 응답 지시 포함)
+_SYSTEM_PROMPT = (
+    "You are ForgeWise, an expert code analysis assistant. "
+    "Respond in Korean (한국어). Be concise and actionable."
+)
+
 
 class ForgeWise:
-    def __init__(self, root: str | Path) -> None:
+    def __init__(self, root: str | Path, llm: LLMClient | None = None) -> None:
         self.repo = Repository(Path(root))
+        self._llm = llm or LLMClient()
 
     def code_explanation(
         self, path: str, start: int | None = None, end: int | None = None
@@ -48,7 +56,7 @@ class ForgeWise:
     ) -> dict[str, Any]:
         text = self.repo.read_text(path)
         selected = line_slice(text, start, end)
-        return {
+        result: dict[str, Any] = {
             "feature": feature,
             "surface": surface,
             "path": path,
@@ -60,6 +68,13 @@ class ForgeWise:
             "symbols": python_symbols(text),
             "summary": _summarize_code(path, text),
         }
+        ai_summary = self._llm.generate(
+            f"Explain the following code from {path}:\n\n{selected}",
+            _SYSTEM_PROMPT,
+        )
+        if ai_summary:
+            result["summary"] = ai_summary
+        return result
 
     def refactor_code(self, path: str) -> dict[str, Any]:
         text = self.repo.read_text(path)
@@ -99,6 +114,15 @@ class ForgeWise:
             if matches
             else "관련 코드 조각을 찾지 못했습니다."
         )
+        context = "\n".join(
+            f"--- {m['path']} ---\n{m.get('snippet', '')}" for m in matches
+        )
+        ai_answer = self._llm.generate(
+            f"Question: {question}\n\nRelevant code context:\n{context}",
+            _SYSTEM_PROMPT,
+        )
+        if ai_answer:
+            answer = ai_answer
         return {"feature": "duo_chat", "question": question, "answer": answer, "matches": matches}
 
     def code_suggestions(self) -> dict[str, Any]:
@@ -117,11 +141,21 @@ class ForgeWise:
             text = self.repo.read_text(rel)
             findings.extend(item.to_dict() for item in security_findings(path, text))
             findings.extend(item.to_dict() for item in refactor_suggestions(path, text))
-        return {
+        result: dict[str, Any] = {
             "feature": "code_review",
             "findings": findings,
             "status": "fail" if findings else "pass",
         }
+        if findings:
+            summary_text = json.dumps(findings[:10], ensure_ascii=False)
+            ai_comments = self._llm.generate(
+                f"Review the following code findings and provide actionable comments:\n\n"
+                f"{summary_text}",
+                _SYSTEM_PROMPT,
+            )
+            if ai_comments:
+                result["ai_comments"] = ai_comments
+        return result
 
     def root_cause_analysis(self, log: str) -> dict[str, Any]:
         text = self._read_log_input(log)
@@ -129,11 +163,33 @@ class ForgeWise:
         for match in re.finditer(r'File "([^"]+)", line (\d+)', text):
             frames.append({"path": match.group(1), "line": int(match.group(2))})
         error_line = next((line for line in reversed(text.splitlines()) if line.strip()), "")
-        return {"feature": "root_cause_analysis", "error": error_line, "frames": frames}
+        result: dict[str, Any] = {
+            "feature": "root_cause_analysis",
+            "error": error_line,
+            "frames": frames,
+        }
+        ai_analysis = self._llm.generate(
+            f"Analyze the root cause of the following error log:\n\n{text[:2000]}",
+            _SYSTEM_PROMPT,
+        )
+        if ai_analysis:
+            result["ai_analysis"] = ai_analysis
+        return result
 
     def merge_request_summary(self, base: str = "HEAD~1") -> dict[str, Any]:
         diff = _git_diff(self.repo.root, base)
-        return {"feature": "merge_request_summary", "base": base, "summary": _summarize_diff(diff)}
+        result: dict[str, Any] = {
+            "feature": "merge_request_summary",
+            "base": base,
+            "summary": _summarize_diff(diff),
+        }
+        ai_summary = self._llm.generate(
+            f"Summarize the following git diff for a merge request description:\n\n{diff[:3000]}",
+            _SYSTEM_PROMPT,
+        )
+        if ai_summary:
+            result["ai_summary"] = ai_summary
+        return result
 
     def merge_commit_message_generation(self, base: str = "HEAD~1") -> dict[str, Any]:
         diff = _git_diff(self.repo.root, base)
@@ -141,6 +197,16 @@ class ForgeWise:
         files = summary["files"]
         noun = f"{len(files)} files" if files else "repository metadata"
         message = f"chore: update {noun}"
+        ai_message = self._llm.generate(
+            f"Generate a concise git commit message (conventional commits format) "
+            f"for the following diff:\n\n{diff[:3000]}",
+            "You are a git commit message generator. "
+            "Use conventional commits format (feat/fix/chore/refactor). "
+            "Respond with ONLY the commit message, no explanation. "
+            "Write in Korean (한국어) for the description part.",
+        )
+        if ai_message:
+            message = ai_message.strip().splitlines()[0]
         return {
             "feature": "merge_commit_message_generation",
             "base": base,
@@ -177,6 +243,15 @@ class ForgeWise:
                 "- Run the local project gate before merge.",
             ]
         )
+        ai_body = self._llm.generate(
+            f"Generate a detailed GitLab issue description for the following topic:\n\n"
+            f"{prompt}\n\n"
+            f"Include: Summary, Context, Steps to Reproduce (if applicable), "
+            f"and Acceptance Criteria sections.",
+            _SYSTEM_PROMPT,
+        )
+        if ai_body:
+            body = ai_body
         return {"feature": "issue_description_generation", "title": title, "body": body}
 
     def discussion_summary(self, text: str) -> dict[str, Any]:
