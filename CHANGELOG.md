@@ -58,24 +58,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (없음 — 본 cycle 은 거버넌스/문서 범위. tool 코드 변경 0)
 
-## [0.1.0] - 2026-05-12
+## [0.1.0] — YYYY-MM-DD
 
 ### Added
 
-- MCP-native developer intelligence MVP (Python 3.11 / FastAPI / authlib /
-  httpx / uvicorn).
-- 18 GitLab Duo Enterprise tool + 15 GitLab MCP compatible tool = 총 33 종.
-- stdio transport (`forgewise-mcp`) + HTTP transport (`forgewise-http`).
-- OAuth 2.0 Dynamic Client Registration (PKCE plain / S256, redirect URI
-  whitelist: `https://`, `127.0.0.1`, `localhost`).
-- 결정론적 분석 (외부 LLM 미호출).
-- `.forgewise/audit.jsonl` 감사 로그 + 비밀값 마스킹 (`token` / `secret` /
-  `password` / `key` → `[REDACTED]`).
-- `make check` 로컬 게이트 (ruff + mypy + pytest).
-- `tests/test_governance.py` — `.github/workflows/` 부재 강제 (RFC-0002 정합).
-- README 4-lang 구조 (en SSOT + ko 정식판 + ja/zh placeholder).
-- `docs/design.md` + `docs/security.md` + `docs/references.md` +
-  `docs/testing.md` + `docs/completion-audit.md`.
+- MCP server bootstrap: CLI (`forgewise`), stdio (`forgewise-mcp`), HTTP (`forgewise-http`)
+- 33 MCP tools: 18 GitLab Duo compatible + 15 GitLab MCP server compatible
+- GitLab REST API v4 client with token redaction and fail-closed mutation gate
+- OAuth 2.0 Dynamic Client Registration with PKCE (plain + S256)
+- Audit logging (`.forgewise/audit.jsonl`) with automatic secret redaction
+- Static analysis: Python symbol extraction, refactoring suggestions, test skeleton generation
+- Security scanning: hardcoded-secret, python-eval, shell-true detection and fix suggestions
+- 5 governance documents (SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CHANGELOG, AGENTS)
+- 4 operational documents (installation, configuration, api-reference, upgrade)
+- 4-language support (EN, KO, JA, ZH) with i18n glossaries
+- lefthook-based local CI 4-tier gates (pre-commit, commit-msg, pre-push, Makefile)
+- ADR-0001: Python stack override justification
 
 [Unreleased]: https://github.com/keiailab/forgewise/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/keiailab/forgewise/releases/tag/v0.1.0
