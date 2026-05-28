@@ -1,6 +1,9 @@
+"""ForgeWise HTTP MCP 서버 (FastAPI 기반)."""
+
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,8 +14,11 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
+from forgewise.logging import setup_logging
 from forgewise.oauth import OAuthStore
 from forgewise.protocol import handle_json_rpc
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -118,6 +124,7 @@ def _config_from_env() -> HttpServerConfig:
 
 
 def main(argv: list[str] | None = None) -> int:
+    setup_logging()
     parser = argparse.ArgumentParser(prog="forgewise-http")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8080)
@@ -132,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
         else Path.home() / ".forgewise" / "oauth.sqlite3",
         require_oauth=bool(args.require_oauth),
     )
+    logger.info("HTTP 서버 시작: host=%s port=%s", args.host, args.port)
     uvicorn.run(create_app(config), host=str(args.host), port=int(args.port), log_level="info")
     return 0
 
