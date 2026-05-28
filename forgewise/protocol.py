@@ -8,6 +8,7 @@ from typing import Any
 
 import httpx
 
+from forgewise.metrics import record_error, record_tool_call, track_duration
 from forgewise.tools import McpToolError, ToolRuntime, call_tool, list_tools
 
 SUPPORTED_PROTOCOLS = ["2025-03-26", "2025-06-18"]
@@ -55,12 +56,18 @@ def _handle_tool_call(
     name = _strip_prefix(raw_name, tool_prefix)
     arguments = _dict(params.get("arguments"))
     runtime = ToolRuntime(root=root.resolve(), gitlab_http_client=gitlab_http_client)
-    try:
-        result = call_tool(name, arguments, runtime)
-    except McpToolError as exc:
-        return _error(msg_id, exc.code, str(exc))
-    except (RuntimeError, ValueError) as exc:
-        return _error(msg_id, -32602, str(exc))
+
+    record_tool_call(name)
+    with track_duration():
+        try:
+            result = call_tool(name, arguments, runtime)
+        except McpToolError as exc:
+            record_error("mcp_tool_error")
+            return _error(msg_id, exc.code, str(exc))
+        except (RuntimeError, ValueError) as exc:
+            record_error("runtime_error")
+            return _error(msg_id, -32602, str(exc))
+
     return {
         "jsonrpc": "2.0",
         "id": msg_id,

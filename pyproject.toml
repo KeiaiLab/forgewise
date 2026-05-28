@@ -25,11 +25,15 @@ Changelog = "https://github.com/keiailab/forgewise/blob/main/CHANGELOG.md"
 Issues = "https://github.com/keiailab/forgewise/issues"
 
 [project.optional-dependencies]
+metrics = [
+    "prometheus-client>=0.21",
+]
 dev = [
     "pytest>=9.0",
     "pytest-cov>=6.0",
     "ruff>=0.15",
     "mypy>=2.0",
+    "prometheus-client>=0.21",
 ]
 
 [project.scripts]
