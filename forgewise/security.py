@@ -1,3 +1,5 @@
+"""보안 취약점 정적 탐지 — hardcoded-secret, eval, shell=True."""
+
 from __future__ import annotations
 
 import ast

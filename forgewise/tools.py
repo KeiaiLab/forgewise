@@ -1,3 +1,5 @@
+"""MCP 도구 카탈로그 — 33종 도구 정의 및 디스패치."""
+
 from __future__ import annotations
 
 import os
