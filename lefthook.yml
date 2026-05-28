@@ -6,6 +6,9 @@
 # S4 Phase 6 (2026-05-21): readme-i18n-sync hook 추가 — README 4-lang drift 검사
 # (operator-commons docs/i18n/README.md §5.1 정합).
 #
+# Phase 2 (#26): detect-secrets, pip-audit → dev deps 포함. Python 도구 graceful skip 제거.
+# Node 도구 (markdownlint-cli2, markdown-link-check) 는 npm 미설치 환경 대응으로 graceful skip 유지.
+#
 # 우회 정책:
 # - 전체 우회: `LEFTHOOK=0 git commit ...` 또는 commit message 에 `[skip-hooks]`
 # - 개별 hook 우회: 각 hook 의 env 항목 (사유 PR / commit body 의무 기술)
@@ -25,19 +28,16 @@ pre-commit:
       glob: "*.py"
       run: uv run ruff format --check {staged_files}
     secrets:
-      # detect-secrets baseline 미생성 시 graceful skip (Phase 1 정책)
-      # baseline 생성: `uv run detect-secrets scan > .secrets.baseline`
+      # detect-secrets — Phase 2: dev deps 포함으로 graceful skip 제거 (#26)
+      # baseline 미존재 시 실패 (baseline 은 저장소에 커밋됨)
       run: |
         if [ ! -f .secrets.baseline ]; then
-          echo "secrets: .secrets.baseline 미생성 — graceful skip (baseline 생성 권장)"
-          exit 0
+          echo "secrets: .secrets.baseline 미존재 — 'uv run detect-secrets scan > .secrets.baseline' 실행 필요"
+          exit 1
         fi
-        if ! command -v detect-secrets-hook >/dev/null 2>&1; then
-          echo "secrets: detect-secrets 미설치 — graceful skip (uv tool install detect-secrets 권장)"
-          exit 0
-        fi
-        detect-secrets-hook --baseline .secrets.baseline {staged_files}
+        uv run detect-secrets-hook --baseline .secrets.baseline {staged_files}
     md-lint:
+      # markdownlint-cli2 — Node 도구: npm 미설치 환경 대응으로 graceful skip 유지 (#26)
       glob: "*.md"
       run: |
         if ! command -v markdownlint-cli2 >/dev/null 2>&1; then
@@ -95,13 +95,8 @@ pre-push:
     py-test:
       run: uv run --python 3.11 --extra dev python -m pytest -q
     py-audit:
-      # pip-audit 미설치 graceful skip — 별 후속 (CONTRIBUTING.md 안내)
-      run: |
-        if ! command -v pip-audit >/dev/null 2>&1; then
-          echo "py-audit: pip-audit 미설치 — graceful skip (uv tool install pip-audit 권장)"
-          exit 0
-        fi
-        pip-audit
+      # pip-audit — Phase 2: dev deps 포함으로 graceful skip 제거 (#26)
+      run: uv run pip-audit
     readme-i18n-sync:
       # README.md (EN canonical) ↔ README.{ko,ja,zh}.md drift check (S4 Phase 6).
       # operator-commons docs/i18n/README.md §5.1 정합 — pre-push 위치 (작업 흐름 마찰 적음).
@@ -127,18 +122,19 @@ pre-push:
         if ! diff -q uv.lock /tmp/uv.lock.bak >/dev/null 2>&1; then
           cp /tmp/uv.lock.bak uv.lock 2>/dev/null || true
           rm -f /tmp/uv.lock.bak
-          echo "❌ uv-lock-drift: pyproject.toml 변경 후 uv.lock 갱신 누락"
+          echo "uv-lock-drift: pyproject.toml 변경 후 uv.lock 갱신 누락"
           echo "   해결: uv lock && git add uv.lock && git commit --amend"
           exit 1
         fi
         rm -f /tmp/uv.lock.bak
 
     # ─── audit P1-13 보강 — markdown link check (commons ADR-0015 정합) ──
+    # markdown-link-check — Node 도구: npm 미설치 환경 대응으로 graceful skip 유지 (#26)
     markdown-link-check:
       glob: "*.md"
       run: |
         if ! command -v markdown-link-check >/dev/null 2>&1; then
-          echo "markdown-link-check: 미설치 — graceful skip"
+          echo "markdown-link-check: 미설치 — graceful skip (npm i -g markdown-link-check 권장)"
           exit 0
         fi
         for f in {staged_files}; do
