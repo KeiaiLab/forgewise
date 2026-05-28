@@ -1,0 +1,16 @@
+apiVersion: v2
+name: forgewise
+description: ForgeWise — MCP-native developer intelligence for code forges
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+maintainers:
+  - name: keiailab
+    url: https://github.com/keiailab
+keywords:
+  - mcp
+  - gitlab
+  - developer-intelligence
+home: https://github.com/keiailab/forgewise
+sources:
+  - https://github.com/keiailab/forgewise

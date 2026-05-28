@@ -186,6 +186,82 @@ make setup-hooks
 
 `LEFTHOOK=0 git commit ...` 으로 전체 우회 가능하지만 PR 본문에 사유 명시 의무.
 
+## Helm Chart (Kubernetes)
+
+ForgeWise provides a Helm chart for deploying the HTTP MCP server (`forgewise-http`)
+to a Kubernetes cluster.
+
+### Prerequisites
+
+- Kubernetes 1.24+
+- Helm 3.x
+- A GitLab API token stored in a Kubernetes Secret
+
+### Install from source
+
+```bash
+git clone https://github.com/keiailab/forgewise.git
+cd forgewise
+
+# Create a Secret for GITLAB_TOKEN
+kubectl create secret generic forgewise-gitlab \
+  --from-literal=token=glpat-xxxxxxxxxxxxxxxxxxxx
+
+# Install the chart (uses the existing Secret)
+helm install forgewise charts/forgewise \
+  --set gitlab.baseUrl=https://gitlab.example.com \
+  --set gitlab.existingSecret=forgewise-gitlab
+```
+
+### Configuration
+
+Key values in `values.yaml`:
+
+| Parameter | Default | Description |
+|---|---|---|
+| `image.repository` | `keiailab/forgewise` | Container image repository |
+| `image.tag` | `0.1.0` | Container image tag |
+| `replicaCount` | `1` | Number of pod replicas |
+| `service.type` | `ClusterIP` | Kubernetes Service type |
+| `service.port` | `8000` | Service port |
+| `config.logLevel` | `INFO` | Log level (`DEBUG` / `INFO` / `WARN` / `ERROR`) |
+| `config.enableMutations` | `false` | Enable mutation tools (`create_issue`, etc.) |
+| `gitlab.baseUrl` | `""` | GitLab instance URL |
+| `gitlab.existingSecret` | `""` | Name of an existing Secret containing the GitLab token |
+| `gitlab.tokenKey` | `token` | Key within the Secret that holds the token |
+| `oauth.requireOAuth` | `false` | Require OAuth 2.0 authentication |
+| `resources.limits.cpu` | `500m` | CPU limit |
+| `resources.limits.memory` | `256Mi` | Memory limit |
+| `resources.requests.cpu` | `100m` | CPU request |
+| `resources.requests.memory` | `128Mi` | Memory request |
+
+### Validate templates
+
+```bash
+# Lint the chart
+helm lint charts/forgewise
+
+# Render templates locally (dry-run)
+helm template forgewise charts/forgewise \
+  --set gitlab.baseUrl=https://gitlab.example.com
+```
+
+### Upgrade / Uninstall
+
+```bash
+# Upgrade with new values
+helm upgrade forgewise charts/forgewise \
+  --set image.tag=0.2.0
+
+# Uninstall
+helm uninstall forgewise
+```
+
+> **Note**: `GITLAB_TOKEN` is never stored in `values.yaml`. Always use a
+> Kubernetes Secret (either `gitlab.existingSecret` or one created by the chart)
+> and inject the token via `kubectl create secret` or an external secret manager
+> (e.g., External Secrets Operator, Infisical).
+
 ## 다음 단계
 
 - 환경 설정 상세: `docs/configuration.md`

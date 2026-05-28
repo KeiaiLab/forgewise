@@ -1,0 +1,59 @@
+# ForgeWise Helm chart — default values
+# 각 항목은 templates/ 에서 참조된다.
+
+image:
+  repository: keiailab/forgewise
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# -- ForgeWise 런타임 설정 (ConfigMap 으로 주입) --
+config:
+  logLevel: INFO
+  enableMutations: false
+
+# -- GitLab 연결 --
+# GITLAB_TOKEN 은 반드시 Secret 으로 관리. 평문 값 여기에 기재 금지.
+gitlab:
+  baseUrl: ""
+  # 기존 Secret 이름 (직접 생성한 경우). 비어있으면 chart 가 Secret 생성.
+  existingSecret: ""
+  # Secret 내의 key 이름
+  tokenKey: "token"
+
+# -- OAuth 2.0 (HTTP transport) --
+oauth:
+  requireOAuth: false
+
+# -- Pod 설정 --
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# -- Probes --
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 3
+  periodSeconds: 5
