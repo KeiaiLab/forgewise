@@ -12,7 +12,8 @@ import httpx
 class GitLabConfig:
     base_url: str
     token: str
-    timeout: float = 10.0
+    connect_timeout: float = 5.0
+    read_timeout: float = 30.0
 
     @classmethod
     def from_arguments(cls, arguments: dict[str, Any]) -> GitLabConfig:
@@ -24,9 +25,31 @@ class GitLabConfig:
             raise ValueError(
                 "GitLab API token이 필요합니다: GITLAB_TOKEN 또는 gitlab_token을 지정하세요."
             )
-        timeout_value = arguments.get("gitlab_timeout") or os.getenv("GITLAB_TIMEOUT", "10")
-        timeout = float(str(timeout_value))
-        return cls(base_url=base_url.rstrip("/"), token=token, timeout=timeout)
+        # 하위 호환: GITLAB_TIMEOUT 단일 값 시 connect/read 양쪽에 적용
+        legacy_timeout = arguments.get("gitlab_timeout") or os.getenv("GITLAB_TIMEOUT")
+        fallback = float(str(legacy_timeout)) if legacy_timeout is not None else None
+
+        connect_raw = arguments.get("gitlab_connect_timeout") or os.getenv(
+            "GITLAB_CONNECT_TIMEOUT"
+        )
+        read_raw = arguments.get("gitlab_read_timeout") or os.getenv("GITLAB_READ_TIMEOUT")
+
+        connect_timeout = (
+            float(str(connect_raw))
+            if connect_raw is not None
+            else (fallback if fallback is not None else 5.0)
+        )
+        read_timeout = (
+            float(str(read_raw))
+            if read_raw is not None
+            else (fallback if fallback is not None else 30.0)
+        )
+        return cls(
+            base_url=base_url.rstrip("/"),
+            token=token,
+            connect_timeout=connect_timeout,
+            read_timeout=read_timeout,
+        )
 
 
 class GitLabClient:
@@ -222,7 +245,14 @@ class GitLabClient:
         url = f"{self.config.base_url}/api/v4{path}"
         headers = {"Authorization": f"Bearer {self.config.token}"}
         own_client = self._http_client is None
-        client = self._http_client or httpx.Client(timeout=self.config.timeout)
+        client = self._http_client or httpx.Client(
+            timeout=httpx.Timeout(
+                connect=self.config.connect_timeout,
+                read=self.config.read_timeout,
+                write=self.config.connect_timeout,
+                pool=self.config.connect_timeout,
+            )
+        )
         try:
             response = client.request(method, url, headers=headers, params=params, json=json_data)
             if response.status_code >= 400:
