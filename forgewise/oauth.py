@@ -54,11 +54,11 @@ class OAuthStore:
                 """,
                 (
                     client.client_id,
-                    client.client_secret,
+                    _hash_token(client.client_secret),
                     json.dumps(client.redirect_uris, ensure_ascii=False),
                     client.scope,
                     client.client_name,
-                    registration_token,
+                    _hash_token(registration_token),
                     int(time.time()),
                 ),
             )
@@ -71,6 +71,17 @@ class OAuthStore:
             "token_endpoint_auth_method": "client_secret_post",
             "registration_access_token": registration_token,
         }
+
+    def verify_client_secret(self, client_id: str, client_secret: str) -> bool:
+        """client_secret 평문을 해시하여 DB 저장값과 비교한다."""
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT client_secret FROM clients WHERE client_id = ?",
+                (client_id,),
+            ).fetchone()
+        if row is None:
+            return False
+        return str(row["client_secret"]) == _hash_token(client_secret)
 
     def create_authorization_code(
         self,
@@ -152,7 +163,7 @@ class OAuthStore:
                 INSERT INTO tokens (access_token, client_id, scope, expires_at)
                 VALUES (?, ?, ?, ?)
                 """,
-                (access_token, client_id, str(row["scope"]), expires_at),
+                (_hash_token(access_token), client_id, str(row["scope"]), expires_at),
             )
         return {
             "access_token": access_token,
@@ -168,7 +179,7 @@ class OAuthStore:
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT scope, expires_at FROM tokens WHERE access_token = ?",
-                (token,),
+                (_hash_token(token),),
             ).fetchone()
         if row is None or int(row["expires_at"]) < int(time.time()):
             return False
@@ -230,6 +241,11 @@ class OAuthStore:
                 );
                 """
             )
+
+
+def _hash_token(token: str) -> str:
+    """토큰을 SHA-256 해시로 변환한다. DB 저장 시 사용."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def _verify_pkce(verifier: str, challenge: str, method: str) -> None:
