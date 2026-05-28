@@ -38,26 +38,38 @@ process in [SECURITY.md](SECURITY.md) instead.
 ```bash
 git clone https://github.com/keiailab/forgewise.git
 cd forgewise
-uv sync --extra dev      # install dev dependencies (ruff, mypy, pytest)
+uv sync --extra dev      # install dev dependencies (ruff, mypy, pytest, detect-secrets, pip-audit)
 make setup-hooks         # install lefthook git hooks
+make setup-security-tools  # verify security tools + generate .secrets.baseline
 ```
 
 After `make setup-hooks` the following hooks become active:
 
 | Stage        | Hooks                                                                |
 | ------------ | -------------------------------------------------------------------- |
-| `pre-commit` | ruff check --fix, ruff format --check, detect-secrets, markdownlint  |
+| `pre-commit` | ruff check --fix, ruff format --check, **detect-secrets**, markdownlint  |
 | `commit-msg` | Conventional Commits regex, DCO `Signed-off-by:`                     |
-| `pre-push`   | mypy --strict, pytest -q, pip-audit                                  |
+| `pre-push`   | mypy --strict, pytest -q, **pip-audit**                              |
 
-`detect-secrets`, `markdownlint-cli2`, and `pip-audit` are *graceful skips*
-when not installed. To enable them:
+`detect-secrets` and `pip-audit` are included in the `[dev]` dependencies
+and are installed automatically by `uv sync --extra dev`. Their lefthook
+hooks run via `uv run` and **will fail** (not skip) if the tools are
+unavailable.
+
+`markdownlint-cli2` and `markdown-link-check` are Node tools and remain
+*graceful skips* when not installed (npm is not a mandatory prerequisite).
+To enable them:
 
 ```bash
-uv tool install detect-secrets
-uv run detect-secrets scan > .secrets.baseline    # generate allowlist baseline
-uv tool install pip-audit
 npm install -g markdownlint-cli2
+npm install -g markdown-link-check
+```
+
+To set up all security tools at once (including `.secrets.baseline`
+generation):
+
+```bash
+make setup-security-tools
 ```
 
 ### Verifying the environment
