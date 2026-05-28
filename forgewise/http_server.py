@@ -82,6 +82,9 @@ def create_app(config: HttpServerConfig | None = None) -> FastAPI:
     async def token(request: Request) -> dict[str, Any]:
         try:
             payload = await _read_oauth_form(request)
+            grant_type = str(payload.get("grant_type") or "")
+            if grant_type == "refresh_token":
+                return oauth_store.exchange_refresh_token(payload)
             return oauth_store.exchange_authorization_code(payload)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc

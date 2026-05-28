@@ -14,6 +14,11 @@ from urllib.parse import urlencode
 
 from authlib.common.security import generate_token  # type: ignore[import-untyped]
 
+# refresh token 만료: 7일 (초)
+_REFRESH_TOKEN_LIFETIME = 7 * 24 * 3600
+# access token 만료: 1시간 (초)
+_ACCESS_TOKEN_LIFETIME = 3600
+
 
 @dataclass(frozen=True)
 class RegisteredClient:
@@ -157,21 +162,92 @@ class OAuthStore:
             _verify_pkce(
                 code_verifier, str(row["code_challenge"]), str(row["code_challenge_method"])
             )
+            now = int(time.time())
             access_token = _generate_token(48)
-            expires_at = int(time.time()) + 3600
+            refresh_token = _generate_token(48)
+            access_expires_at = now + _ACCESS_TOKEN_LIFETIME
+            refresh_expires_at = now + _REFRESH_TOKEN_LIFETIME
             conn.execute("DELETE FROM authorization_codes WHERE code = ?", (code,))
             conn.execute(
                 """
-                INSERT INTO tokens (access_token, client_id, scope, expires_at)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO tokens
+                    (access_token, client_id, scope, expires_at,
+                     refresh_token, refresh_expires_at)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """,
-                (_hash_token(access_token), client_id, str(row["scope"]), expires_at),
+                (
+                    _hash_token(access_token),
+                    client_id,
+                    str(row["scope"]),
+                    access_expires_at,
+                    _hash_token(refresh_token),
+                    refresh_expires_at,
+                ),
             )
         return {
             "access_token": access_token,
             "token_type": "Bearer",
-            "expires_in": 3600,
+            "expires_in": _ACCESS_TOKEN_LIFETIME,
             "scope": str(row["scope"]),
+            "refresh_token": refresh_token,
+        }
+
+    def exchange_refresh_token(self, form: dict[str, Any]) -> dict[str, Any]:
+        """grant_type=refresh_token 처리: 기존 토큰 쌍 무효화 후 새 토큰 쌍 발급 (rotation)."""
+        if form.get("grant_type") != "refresh_token":
+            raise ValueError("refresh_token grant만 지원합니다.")
+        incoming_refresh = str(form.get("refresh_token") or "")
+        if not incoming_refresh:
+            raise ValueError("refresh_token이 필요합니다.")
+        with self._connect() as conn:
+            row = conn.execute(
+                """
+                SELECT access_token, client_id, scope, refresh_token, refresh_expires_at
+                FROM tokens
+                WHERE refresh_token = ?
+                """,
+                (_hash_token(incoming_refresh),),
+            ).fetchone()
+            if row is None:
+                raise ValueError("유효하지 않은 refresh_token입니다.")
+            if int(row["refresh_expires_at"]) < int(time.time()):
+                # 만료된 refresh token 행 삭제 후 에러
+                conn.execute(
+                    "DELETE FROM tokens WHERE access_token = ?",
+                    (str(row["access_token"]),),
+                )
+                raise ValueError("refresh_token이 만료되었습니다.")
+            # rotation: 기존 토큰 쌍 삭제
+            conn.execute(
+                "DELETE FROM tokens WHERE access_token = ?",
+                (str(row["access_token"]),),
+            )
+            # 새 토큰 쌍 발급
+            now = int(time.time())
+            new_access = _generate_token(48)
+            new_refresh = _generate_token(48)
+            conn.execute(
+                """
+                INSERT INTO tokens
+                    (access_token, client_id, scope, expires_at,
+                     refresh_token, refresh_expires_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    _hash_token(new_access),
+                    str(row["client_id"]),
+                    str(row["scope"]),
+                    now + _ACCESS_TOKEN_LIFETIME,
+                    _hash_token(new_refresh),
+                    now + _REFRESH_TOKEN_LIFETIME,
+                ),
+            )
+        return {
+            "access_token": new_access,
+            "token_type": "Bearer",
+            "expires_in": _ACCESS_TOKEN_LIFETIME,
+            "scope": str(row["scope"]),
+            "refresh_token": new_refresh,
         }
 
     def validate_bearer(self, authorization: str | None, required_scope: str = "mcp") -> bool:
@@ -241,6 +317,17 @@ class OAuthStore:
                     scope TEXT NOT NULL,
                     expires_at INTEGER NOT NULL
                 );
+                """
+            )
+            # 기존 tokens 테이블에 refresh_token 컬럼이 없는 경우 마이그레이션
+            columns = {row[1] for row in conn.execute("PRAGMA table_info(tokens)").fetchall()}
+            if "refresh_token" not in columns:
+                conn.execute("ALTER TABLE tokens ADD COLUMN refresh_token TEXT")
+                conn.execute("ALTER TABLE tokens ADD COLUMN refresh_expires_at INTEGER")
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_tokens_refresh
+                    ON tokens (refresh_token)
                 """
             )
 

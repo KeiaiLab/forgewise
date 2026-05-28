@@ -1,3 +1,5 @@
+"""OAuth 단위 테스트 (기존 + refresh token rotation)."""
+
 from __future__ import annotations
 
 import base64
@@ -9,6 +11,10 @@ from unittest.mock import patch
 import pytest
 
 from forgewise.oauth import OAuthStore, _allowed_redirect_uri, _verify_pkce
+
+# ---------------------------------------------------------------------------
+# 기존 OAuth 테스트 (fixture 기반)
+# ---------------------------------------------------------------------------
 
 
 def test_register_client_returns_credentials(oauth_store: OAuthStore) -> None:
@@ -407,3 +413,214 @@ def test_allowed_redirect_uri() -> None:
     assert _allowed_redirect_uri("http://127.0.0.1:8080/cb")
     assert not _allowed_redirect_uri("http://evil.example.com/cb")
     assert not _allowed_redirect_uri("ftp://example.com/cb")
+
+
+# ---------------------------------------------------------------------------
+# Refresh token rotation 테스트 (fixture 기반)
+# ---------------------------------------------------------------------------
+
+
+def _issue_tokens(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> dict[str, str | int]:
+    """authorization code 발급 -> access + refresh token 교환까지 수행."""
+    code = oauth_store.create_authorization_code(
+        client_id=registered_client["client_id"],
+        redirect_uri="https://example.com/callback",
+        scope="read_api mcp",
+        code_challenge="plain-verifier",
+        code_challenge_method="plain",
+    )
+    return oauth_store.exchange_authorization_code(
+        {
+            "grant_type": "authorization_code",
+            "client_id": registered_client["client_id"],
+            "code": code,
+            "redirect_uri": "https://example.com/callback",
+            "code_verifier": "plain-verifier",
+        }
+    )
+
+
+# -- exchange_authorization_code 에서 refresh_token 발급 확인 --
+
+
+def test_exchange_returns_refresh_token(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> None:
+    """authorization code 교환 시 refresh_token이 응답에 포함되어야 한다."""
+    result = _issue_tokens(oauth_store, registered_client)
+
+    assert "refresh_token" in result
+    assert result["refresh_token"]
+    assert result["token_type"] == "Bearer"
+    assert result["expires_in"] == 3600
+
+
+# -- exchange_refresh_token 정상 동작 --
+
+
+def test_refresh_token_exchange_returns_new_pair(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> None:
+    """refresh_token 교환 시 새 access_token + refresh_token 쌍이 발급되어야 한다."""
+    first = _issue_tokens(oauth_store, registered_client)
+
+    second = oauth_store.exchange_refresh_token(
+        {
+            "grant_type": "refresh_token",
+            "refresh_token": first["refresh_token"],
+        }
+    )
+
+    assert second["access_token"] != first["access_token"]
+    assert second["refresh_token"] != first["refresh_token"]
+    assert second["token_type"] == "Bearer"
+    assert second["expires_in"] == 3600
+    assert second["scope"] == first["scope"]
+
+
+# -- rotation: 기존 토큰 무효화 --
+
+
+def test_old_access_token_invalid_after_refresh(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> None:
+    """refresh 후 기존 access_token은 무효여야 한다."""
+    first = _issue_tokens(oauth_store, registered_client)
+
+    # 기존 access_token 유효 확인
+    assert oauth_store.validate_bearer(f"Bearer {first['access_token']}")
+
+    oauth_store.exchange_refresh_token(
+        {
+            "grant_type": "refresh_token",
+            "refresh_token": first["refresh_token"],
+        }
+    )
+
+    # refresh 후 기존 access_token 무효
+    assert not oauth_store.validate_bearer(f"Bearer {first['access_token']}")
+
+
+def test_old_refresh_token_invalid_after_refresh(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> None:
+    """refresh 후 기존 refresh_token으로 재사용 불가해야 한다 (replay 방지)."""
+    first = _issue_tokens(oauth_store, registered_client)
+
+    oauth_store.exchange_refresh_token(
+        {
+            "grant_type": "refresh_token",
+            "refresh_token": first["refresh_token"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="유효하지 않은 refresh_token"):
+        oauth_store.exchange_refresh_token(
+            {
+                "grant_type": "refresh_token",
+                "refresh_token": first["refresh_token"],
+            }
+        )
+
+
+# -- 새 토큰 쌍으로 인증 가능 --
+
+
+def test_new_access_token_valid_after_refresh(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> None:
+    """refresh로 발급된 새 access_token은 유효해야 한다."""
+    first = _issue_tokens(oauth_store, registered_client)
+
+    second = oauth_store.exchange_refresh_token(
+        {
+            "grant_type": "refresh_token",
+            "refresh_token": first["refresh_token"],
+        }
+    )
+
+    assert oauth_store.validate_bearer(f"Bearer {second['access_token']}")
+
+
+def test_chained_refresh(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> None:
+    """연쇄 refresh: 2번째 refresh_token으로도 교환 가능해야 한다."""
+    first = _issue_tokens(oauth_store, registered_client)
+
+    second = oauth_store.exchange_refresh_token(
+        {
+            "grant_type": "refresh_token",
+            "refresh_token": first["refresh_token"],
+        }
+    )
+    third = oauth_store.exchange_refresh_token(
+        {
+            "grant_type": "refresh_token",
+            "refresh_token": second["refresh_token"],
+        }
+    )
+
+    assert third["access_token"] != second["access_token"]
+    assert third["refresh_token"] != second["refresh_token"]
+    assert oauth_store.validate_bearer(f"Bearer {third['access_token']}")
+
+
+# -- 만료 검증 --
+
+
+def test_expired_refresh_token_rejected(
+    oauth_store: OAuthStore, registered_client: dict[str, Any]
+) -> None:
+    """만료된 refresh_token은 거부되어야 한다."""
+    first = _issue_tokens(oauth_store, registered_client)
+
+    # 8일 후로 시간 이동 (refresh token 7일 만료 초과)
+    future = time.time() + 8 * 24 * 3600
+    with patch("forgewise.oauth.time") as mock_time:
+        mock_time.time.return_value = future
+        with pytest.raises(ValueError, match="refresh_token이 만료되었습니다"):
+            oauth_store.exchange_refresh_token(
+                {
+                    "grant_type": "refresh_token",
+                    "refresh_token": first["refresh_token"],
+                }
+            )
+
+
+# -- 에러 케이스 --
+
+
+def test_refresh_requires_grant_type(oauth_store: OAuthStore) -> None:
+    """grant_type이 refresh_token이 아니면 에러."""
+    with pytest.raises(ValueError, match="refresh_token grant만 지원합니다"):
+        oauth_store.exchange_refresh_token(
+            {
+                "grant_type": "authorization_code",
+                "refresh_token": "some-token",
+            }
+        )
+
+
+def test_refresh_requires_refresh_token_field(oauth_store: OAuthStore) -> None:
+    """refresh_token 필드가 비어 있으면 에러."""
+    with pytest.raises(ValueError, match="refresh_token이 필요합니다"):
+        oauth_store.exchange_refresh_token(
+            {
+                "grant_type": "refresh_token",
+                "refresh_token": "",
+            }
+        )
+
+
+def test_refresh_with_unknown_token(oauth_store: OAuthStore) -> None:
+    """존재하지 않는 refresh_token이면 에러."""
+    with pytest.raises(ValueError, match="유효하지 않은 refresh_token"):
+        oauth_store.exchange_refresh_token(
+            {
+                "grant_type": "refresh_token",
+                "refresh_token": "nonexistent-token",
+            }
+        )
