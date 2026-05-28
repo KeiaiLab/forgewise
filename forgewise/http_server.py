@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from forgewise.llm import LLMClient
 from forgewise.logging import setup_logging
 from forgewise.metrics import metrics_available, render_metrics
 from forgewise.oauth import OAuthStore
@@ -76,6 +77,7 @@ class HttpServerConfig:
 def create_app(config: HttpServerConfig | None = None) -> FastAPI:
     active = config or _config_from_env()
     oauth_store = OAuthStore(active.oauth_store_path)
+    llm_client = LLMClient()
     app = FastAPI(title="ForgeWise GitLab MCP", version="0.2.0")
 
     @app.exception_handler(Exception)
@@ -171,7 +173,7 @@ def create_app(config: HttpServerConfig | None = None) -> FastAPI:
         if not isinstance(payload, dict):
             raise HTTPException(status_code=400, detail="JSON-RPC object가 필요합니다.")
         prefix = request.headers.get("X-Gitlab-Mcp-Server-Tool-Name-Prefix", "")
-        return handle_json_rpc(payload, root=active.repo_root, tool_prefix=prefix)
+        return handle_json_rpc(payload, root=active.repo_root, tool_prefix=prefix, llm=llm_client)
 
     if metrics_available():
 

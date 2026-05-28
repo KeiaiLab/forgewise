@@ -13,6 +13,7 @@ import httpx
 from forgewise.audit import write_audit
 from forgewise.features import ForgeWise
 from forgewise.gitlab_client import GitLabClient, GitLabConfig
+from forgewise.llm import LLMClient
 
 ToolHandler = Callable[["ToolRuntime", dict[str, Any]], dict[str, Any]]
 
@@ -27,6 +28,7 @@ class McpToolError(ValueError):
 class ToolRuntime:
     root: Path
     gitlab_http_client: httpx.Client | None = None
+    llm: LLMClient | None = None
 
 
 @dataclass(frozen=True)
@@ -358,7 +360,9 @@ def call_tool(name: str, arguments: dict[str, Any], runtime: ToolRuntime) -> dic
     tool = tools[normalized]
     _validate_schema(tool, arguments)
     root = _resolve_root(runtime.root, arguments)
-    child_runtime = ToolRuntime(root=root, gitlab_http_client=runtime.gitlab_http_client)
+    child_runtime = ToolRuntime(
+        root=root, gitlab_http_client=runtime.gitlab_http_client, llm=runtime.llm
+    )
     result = tool.handler(child_runtime, dict(arguments))
     write_audit(root, name, arguments, result)
     return result
@@ -426,7 +430,7 @@ def _local_tool(
     required: list[str] | None = None,
 ) -> ToolDefinition:
     def handler(runtime: ToolRuntime, args: dict[str, Any]) -> dict[str, Any]:
-        return feature_handler(ForgeWise(runtime.root), args)
+        return feature_handler(ForgeWise(runtime.root, llm=runtime.llm), args)
 
     return ToolDefinition(
         name=name,

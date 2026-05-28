@@ -7,9 +7,12 @@ import logging
 import sys
 from typing import Any, BinaryIO
 
+from forgewise.llm import LLMClient
 from forgewise.logging import setup_logging
 from forgewise.protocol import handle_json_rpc as _handle_json_rpc
 from forgewise.tools import list_tools as _list_tools
+
+_llm_client = LLMClient()
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +22,7 @@ def list_tools() -> list[dict[str, Any]]:
 
 
 def handle_json_rpc(message: dict[str, Any], *, tool_prefix: str = "") -> dict[str, Any]:
-    return _handle_json_rpc(message, tool_prefix=tool_prefix)
+    return _handle_json_rpc(message, tool_prefix=tool_prefix, llm=_llm_client)
 
 
 def main() -> int:
