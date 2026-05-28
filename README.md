@@ -1,5 +1,8 @@
 # ForgeWise
 
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-≥3.11-blue.svg)](https://python.org)
+
 > **English** | [한국어](README.ko.md) | [日本語](README.ja.md) | [中文](README.zh.md)
 
 ForgeWise is a `keiailab` project that implements GitLab Duo Enterprise-class

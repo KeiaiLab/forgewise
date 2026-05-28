@@ -1,3 +1,5 @@
+"""ForgeWise stdio MCP 서버."""
+
 from __future__ import annotations
 
 import json

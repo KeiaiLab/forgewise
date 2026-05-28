@@ -1,3 +1,5 @@
+"""OAuth 2.0 Dynamic Client Registration + PKCE 인증."""
+
 from __future__ import annotations
 
 import base64

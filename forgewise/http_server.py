@@ -1,3 +1,5 @@
+"""ForgeWise HTTP MCP 서버 (FastAPI 기반)."""
+
 from __future__ import annotations
 
 import argparse

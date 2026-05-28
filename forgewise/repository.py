@@ -1,3 +1,5 @@
+"""파일 시스템 기반 저장소 추상화."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

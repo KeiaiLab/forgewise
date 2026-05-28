@@ -1,3 +1,5 @@
+"""MCP 도구 호출 감사 로그 기록."""
+
 from __future__ import annotations
 
 import json

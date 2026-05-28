@@ -1,3 +1,5 @@
+"""ForgeWise 기능 오케스트레이터 — Duo/GitLab 호환 MCP 도구 구현."""
+
 from __future__ import annotations
 
 import json

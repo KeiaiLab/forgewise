@@ -1,3 +1,5 @@
+"""ForgeWise CLI 진입점."""
+
 from __future__ import annotations
 
 import argparse

@@ -1,3 +1,5 @@
+"""GitLab REST API v4 클라이언트."""
+
 from __future__ import annotations
 
 import os

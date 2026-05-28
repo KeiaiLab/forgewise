@@ -1,3 +1,5 @@
+"""Python 소스 정적 분석 — 심볼 추출, 리팩토링 제안, 테스트 스켈레톤 생성."""
+
 from __future__ import annotations
 
 import ast

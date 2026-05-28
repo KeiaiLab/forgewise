@@ -1,3 +1,5 @@
+"""GitLab 연결 스모크 테스트."""
+
 from __future__ import annotations
 
 import os
