@@ -432,7 +432,8 @@ def _explain(feature: str) -> Callable[[ForgeWise, dict[str, Any]], dict[str, An
 
 def _server_version(runtime: ToolRuntime, args: dict[str, Any]) -> dict[str, Any]:
     return GitLabClient(
-        GitLabConfig(base_url="https://gitlab.com", token="unused"), runtime.gitlab_http_client
+        GitLabConfig(base_url="https://gitlab.com", token="unused"),  # noqa: S106
+        runtime.gitlab_http_client,
     ).server_version()
 
 
