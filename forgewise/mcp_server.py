@@ -1,11 +1,17 @@
+"""ForgeWise stdio MCP 서버."""
+
 from __future__ import annotations
 
 import json
+import logging
 import sys
 from typing import Any, BinaryIO
 
+from forgewise.logging import setup_logging
 from forgewise.protocol import handle_json_rpc as _handle_json_rpc
 from forgewise.tools import list_tools as _list_tools
+
+logger = logging.getLogger(__name__)
 
 
 def list_tools() -> list[dict[str, Any]]:
@@ -17,6 +23,8 @@ def handle_json_rpc(message: dict[str, Any], *, tool_prefix: str = "") -> dict[s
 
 
 def main() -> int:
+    setup_logging()
+    logger.info("stdio MCP 서버 시작")
     while True:
         payload = _read_content_length_message(sys.stdin.buffer)
         if payload is None:
