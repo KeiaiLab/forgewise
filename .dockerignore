@@ -1,0 +1,67 @@
+# .dockerignore — forgewise Docker 빌드 제외 목록
+
+# Git
+.git
+.gitignore
+
+# Python 캐시
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+dist/
+build/
+.eggs/
+
+# 가상 환경
+.venv
+venv
+.uv
+
+# 테스트·개발 도구
+tests/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI / hooks
+.github/
+lefthook.yml
+.secrets.baseline
+
+# 문서 (이미지에 불필요 — README.md 는 hatchling 빌드에 필요하므로 유지)
+docs/
+AGENTS*.md
+BRANDING*.md
+CHANGELOG*.md
+CODE_OF_CONDUCT*.md
+CONTRIBUTING*.md
+SECURITY*.md
+ROADMAP.md
+ADOPTERS.md
+LICENSE
+
+# 스크립트
+scripts/
+
+# Docker 자체
+Dockerfile
+.dockerignore
+
+# 기타
+_patch_tools.py
+uv.lock
