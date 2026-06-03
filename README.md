@@ -1,114 +1,81 @@
 # ForgeWise
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-≥3.11-blue.svg)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-%E2%89%A53.11-blue.svg)](https://python.org)
 
 > **English** | [한국어](README.ko.md) | [日本語](README.ja.md) | [中文](README.zh.md)
 
-[![keiailab v3.x-stable](https://img.shields.io/badge/keiailab-v3.x--stable-success?style=flat-square)](https://github.com/keiailab/operator-commons/blob/main/docs/quality/audit-history.md)
-[![audit](https://img.shields.io/badge/audit-100%25-success?style=flat-square)](https://github.com/keiailab/operator-commons/blob/main/scripts/audit-production-grade.sh)
+ForgeWise is an open-source, locally-run, MCP-native code assistant. It exposes
+code analysis and GitLab operations to any [Model Context Protocol](https://modelcontextprotocol.io)
+client (and a plain CLI), so an AI agent — or you — can explain code, review for
+security and maintainability, generate tests, do root-cause analysis, and summarize
+changes without sending your repository to a third-party service.
 
-ForgeWise is a `keiailab` project that implements GitLab Duo Enterprise-class
-development assistant features as an open-source, locally executable, MCP-native
-tool surface.
+Analysis runs deterministically by default. You can optionally point ForgeWise at
+a local Ollama model or any OpenAI-compatible endpoint to enrich the output; if no
+model is configured, every tool still returns useful deterministic results.
 
-## Naming
+## Features
 
-The chosen name is **ForgeWise**.
+**Code analysis** (deterministic, runs on a local checkout):
 
-- **Forge**: targets all code forges — GitLab, GitHub, Gitea, Forgejo.
-- **Wise**: not a simple chatbot — performs code explanation, review, security
-  explanation, root-cause analysis, test generation, and change summarization
-  under the same policy and audit log.
-- Avoids direct use of the GitLab Duo trademark; provides only an open-source
-  feature-compatible surface.
+- **Explain** — summarize a file or line range; list classes and functions.
+- **Review** — scan the repository for security and maintainability findings, with a pass/fail status.
+- **Refactor & fix** — surface refactoring candidates and auto-fixable risky patterns.
+- **Test generation** — produce a `pytest` skeleton for Python functions.
+- **Vulnerability explanation / resolution** — describe risky patterns and suggested fixes.
+- **Root-cause analysis** — extract stack frames and the error line from a log.
+- **Summaries** — merge-request summary, merge commit message, code-review summary, discussion summary, issue description, and SDLC language/quality trends.
+- **Chat** — retrieve repository context relevant to a question.
 
-The CLI command is `forgewise`, the stdio MCP server command is `forgewise-mcp`,
-and the HTTP MCP server command is `forgewise-http`.
+**GitLab API** (works against any GitLab instance via REST):
 
-## Feature Surface
+- Issues — create / get.
+- Merge requests — create / get, plus commits, diffs, and pipelines.
+- Pipelines — list jobs, and list / create / retry / cancel.
+- Work items — create / get notes.
+- Search — global search, label search, and semantic code search.
+- Server version.
 
-The current MVP operates with deterministic analysis, without external LLM
-calls. The same API surface is designed to allow attaching an in-house LLM or
-self-hosted model router.
-
-| ForgeWise tool | Feature group |
-| --- | --- |
-| `code_suggestions` | Code suggestions |
-| `duo_chat` | Repository-context Chat |
-| `code_explanation` | Code explanation compatible alias |
-| `code_explanation_ide` | IDE code explanation |
-| `code_explanation_gitlab_ui` | GitLab UI code explanation |
-| `refactor_code` | Refactoring suggestions |
-| `fix_code` | Fix suggestions |
-| `test_generation` | Test generation |
-| `code_review` | Code review |
-| `root_cause_analysis` | Root-cause analysis |
-| `vulnerability_explanation` | Vulnerability explanation |
-| `vulnerability_resolution` | Vulnerability resolution suggestions |
-| `merge_request_summary` | MR summary |
-| `discussion_summary` | Discussion summary |
-| `sdlc_trends` | SDLC quality trends |
-| `merge_commit_message_generation` | Merge commit message generation |
-| `code_review_summary` | Code review summary |
-| `issue_description_generation` | Issue description generation |
-
-GitLab MCP server compatible tools are also provided.
-
-| ForgeWise tool | Corresponding GitLab MCP feature |
-| --- | --- |
-| `get_mcp_server_version` | MCP server version |
-| `create_issue`, `get_issue` | Issue create / get |
-| `create_merge_request`, `get_merge_request` | MR create / get |
-| `get_merge_request_commits`, `get_merge_request_diffs` | MR commit / diff |
-| `get_merge_request_pipelines`, `get_pipeline_jobs`, `manage_pipeline` | Pipeline query / manage |
-| `create_workitem_note`, `get_workitem_notes` | Work item note create / get |
-| `search`, `search_labels`, `semantic_code_search` | GitLab search |
+Mutating GitLab tools (anything that creates or changes data) are **disabled by
+default** and require `FORGEWISE_ENABLE_MUTATIONS=1` to run.
 
 ## Installation
 
-Install from PyPI:
-
 ```bash
 pip install forgewise
-```
-
-Or with [uv](https://docs.astral.sh/uv/):
-
-```bash
+# or, with uv:
 uv pip install forgewise
 ```
 
-### Development install
+> Not yet on PyPI? See the [development](#contributing) section to run from source.
+
+ForgeWise installs three commands:
+
+| Command | Purpose |
+| --- | --- |
+| `forgewise` | CLI |
+| `forgewise-mcp` | MCP server over stdio |
+| `forgewise-http` | MCP server over HTTP, with OAuth |
+
+## Usage
+
+### CLI
 
 ```bash
-uv sync --python 3.11 --extra dev
-uv run forgewise --repo . review
-```
-
-Run tests:
-
-```bash
-uv run --python 3.11 --extra dev python -m pytest
-```
-
-## CLI Examples
-
-```bash
+forgewise --repo . review
 forgewise --repo . explain forgewise/features.py
-forgewise --repo . explain-ide forgewise/features.py
-forgewise --repo . explain-ui forgewise/features.py
-forgewise --repo . vuln-explain forgewise/security.py
 forgewise --repo . test-generate forgewise/features.py
-forgewise --repo . issue-description "login failure after deploy"
-forgewise --repo . check
+forgewise --repo . root-cause error.log
+forgewise --repo . issue-description "login fails after deploy"
+forgewise --repo . check        # exits 1 if any finding exists — useful in a gate
 ```
 
-`check` exits with code `1` if security or maintainability findings exist.
+Every command prints JSON. Run `forgewise --help` for the full list.
 
-## MCP Server
+### MCP (stdio)
 
-Register as a stdio server in your MCP client:
+Register ForgeWise with your MCP client:
 
 ```json
 {
@@ -120,63 +87,56 @@ Register as a stdio server in your MCP client:
 }
 ```
 
-Each tool call logs the tool name, arguments, and feature name to
-`.forgewise/audit.jsonl`. Arguments whose keys look like secrets are masked as
-`[REDACTED]` before being recorded.
+Each tool call is appended to `.forgewise/audit.jsonl` with the tool name and
+arguments; argument keys that look like secrets are recorded as `[REDACTED]`.
 
-Run the GitLab MCP compatible HTTP endpoint as follows:
+### MCP (HTTP)
 
 ```bash
 forgewise-http --repo . --host 127.0.0.1 --port 8080 --require-oauth
 ```
 
-HTTP endpoints:
+Endpoints:
 
-- `POST /api/v4/mcp`: MCP JSON-RPC endpoint
-- `POST /oauth/register`: Dynamic Client Registration
-- `GET /oauth/authorize`: authorization code issue
-- `POST /oauth/token`: access token exchange
-- `GET /.well-known/oauth-authorization-server`: OAuth metadata
+- `POST /api/v4/mcp` — MCP JSON-RPC
+- `GET /.well-known/oauth-authorization-server` — OAuth metadata
+- `POST /oauth/register` · `GET /oauth/authorize` · `POST /oauth/token` — OAuth 2.0 flow
+- `GET /healthz` — health check
 
-The GitLab API tools use `GITLAB_BASE_URL` and `GITLAB_TOKEN`. Mutating tools
-are blocked by default; to enable them, `FORGEWISE_ENABLE_MUTATIONS=1` is
-required.
+### Configuration
 
-## Local Gates
+GitLab tools read `GITLAB_BASE_URL` (default `https://gitlab.com`) and `GITLAB_TOKEN`.
 
-GitHub Actions is not used. All verification runs through local gates.
+To enable an LLM backend, set `FORGEWISE_LLM_BACKEND` to `ollama` or `openai`
+(see [docs/configuration.md](docs/configuration.md) for the full variable list).
+
+## Roadmap
+
+ForgeWise is pre-1.0. Planned, not yet implemented:
+
+- Publish to PyPI; container image and Helm chart.
+- Multi-forge support beyond GitLab (GitHub, Bitbucket).
+- OAuth refresh-token rotation and SSO (OIDC / SAML) options.
+- Prometheus metrics and structured JSON logging.
+
+See [ROADMAP.md](ROADMAP.md) for details.
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md), and report security issues per
+[SECURITY.md](SECURITY.md).
+
+Local development:
 
 ```bash
-make check
+uv sync --python 3.11 --extra dev
+uv run --python 3.11 --extra dev python -m pytest   # 233 passed, 7 skipped (live GitLab E2E)
+make check                                          # ruff + mypy + pytest
 ```
 
-Gate composition:
+ForgeWise does not use GitHub Actions; all checks run through local gates (`make check`).
 
-- `make lint`: `ruff check .`
-- `make typecheck`: `mypy forgewise tests`
-- `make test`: `python -m pytest`
+## License
 
-Optional live smoke:
-
-```bash
-FORGEWISE_LIVE_GITLAB_TOKEN=... FORGEWISE_LIVE_PROJECT_ID=group/project make smoke-gitlab
-```
-
-If the token and project are absent, smoke exits as skip.
-
-For detailed design see [docs/design.md](docs/design.md); for grounding
-references see [docs/references.md](docs/references.md); for security
-operating standards see [docs/security.md](docs/security.md).
-
----
-
-<p align="center">
-  <b>keiailab operator family</b><br/>
-  <a href="https://github.com/keiailab/operator-commons">operator-commons</a> ·
-  <a href="https://github.com/keiailab/postgres-operator">postgres-operator</a> ·
-  <a href="https://github.com/keiailab/mongodb-operator">mongodb-operator</a> ·
-  <a href="https://github.com/keiailab/valkey-operator">valkey-operator</a> ·
-  <a href="https://github.com/keiailab/forgewise">forgewise</a>
-</p>
-
-<p align="center">© 2026 keiailab · Apache-2.0 · <a href="https://keiailab.com">keiailab.com</a></p>
+[MIT](LICENSE) © keiailab
