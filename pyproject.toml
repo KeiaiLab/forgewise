@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Open-source MCP-native developer intelligence for code forges"
 requires-python = ">=3.11"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = { text = "MIT" }
 authors = [{ name = "keiailab" }]
 dependencies = [
     "authlib>=1.6",
