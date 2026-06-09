@@ -34,7 +34,7 @@ FROM python:3.11-slim
 LABEL org.opencontainers.image.title="forgewise" \
       org.opencontainers.image.description="Open-source MCP-native developer intelligence for code forges" \
       org.opencontainers.image.source="https://github.com/keiailab/forgewise" \
-      org.opencontainers.image.licenses="Apache-2.0"
+      org.opencontainers.image.licenses="MIT"
 
 # 런타임 사용자 (non-root) + 불필요 파일 제거 (이미지 크기 최적화)
 RUN groupadd --gid 1000 forgewise \

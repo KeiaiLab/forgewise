@@ -24,7 +24,7 @@
 
 5 프로젝트 모두는 stack 이 달라도 동일한 거버넌스 primitive 로 수렴합니다:
 
-- **Apache-2.0** 전체 — SSPL 미사용, SaaS 표면 카피레프트 미사용
+- **MIT** 전체 — SSPL 미사용, SaaS 표면 카피레프트 미사용
 - **로컬 4 계층 게이트** — pre-commit + pre-push + Makefile + 리뷰어 증거 (`RFC-0002`, GitHub Actions 영구 금지)
 - **i18n 4-lang** — README + canonical 문서 영어 / 한국어 / 日本語 / 中文 (cleanup supercycle Wave 4, 2026-05-21)
 - **DCO + Conventional Commits** — 모든 commit 의 `Signed-off-by:` + `<type>(<scope>)?: <subject>` 양식
@@ -107,5 +107,5 @@
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="../LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="../LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>

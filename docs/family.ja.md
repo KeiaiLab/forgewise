@@ -24,7 +24,7 @@
 
 5 プロジェクトすべてはスタックが異なっても同じガバナンスプリミティブに収束します:
 
-- **Apache-2.0** 全体 — SSPL 不使用、SaaS 表面のコピーレフト不使用
+- **MIT** 全体 — SSPL 不使用、SaaS 表面のコピーレフト不使用
 - **ローカル 4 層ゲート** — pre-commit + pre-push + Makefile + レビュアー証拠 (`RFC-0002`, GitHub Actions 永久禁止)
 - **i18n 4-lang** — README + canonical 文書 英語 / 한국어 / 日本語 / 中文 (cleanup supercycle Wave 4, 2026-05-21)
 - **DCO + Conventional Commits** — すべての commit に `Signed-off-by:` + `<type>(<scope>)?: <subject>` 形式
@@ -107,5 +107,5 @@
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="../LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="../LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>

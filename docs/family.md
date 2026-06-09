@@ -22,7 +22,7 @@ You are reading this from the **`forgewise`** repository. This page is the canon
 
 All five projects converge on the same governance primitives, even when their stacks differ:
 
-- **Apache-2.0** end-to-end — no SSPL, no copyleft on SaaS surface
+- **MIT** end-to-end — no SSPL, no copyleft on SaaS surface
 - **Local 4-layer gates** — pre-commit + pre-push + Makefile + reviewer evidence (`RFC-0002`, GitHub Actions banned)
 - **i18n 4-lang** — README + canonical docs in English / 한국어 / 日本語 / 中文 (Wave 4 of cleanup supercycle 2026-05-21)
 - **DCO + Conventional Commits** — every commit `Signed-off-by:` + `<type>(<scope>)?: <subject>` form
@@ -105,5 +105,5 @@ When in doubt, the English version is authoritative for technical content; local
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="../LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="../LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>

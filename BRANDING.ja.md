@@ -8,9 +8,9 @@
 
 ## 1. アイデンティティ
 
-**組織**: [keiailab](https://keiailab.com) — Kubernetes-native データプラットフォームオペレーター (Apache-2.0, license-clean, vanilla-upstream 互換).
+**組織**: [keiailab](https://keiailab.com) — Kubernetes-native データプラットフォームオペレーター (MIT-licensed, license-clean, vanilla-upstream 互換).
 
-**プロジェクト**: `forgewise` — Apache-2.0 MCP-native 開発者インテリジェンス — オープンソース、ローカル実行、GitLab Duo Enterprise クラスのツール表面を決定論的分析で実装。
+**プロジェクト**: `forgewise` — MIT-licensed MCP-native 開発者インテリジェンス — オープンソース、ローカル実行、GitLab Duo Enterprise クラスのツール表面を決定論的分析で実装。
 
 **Family**: keiailab ガバナンスベースラインを共有する 5 つの sister プロジェクトの 1 つ。`forgewise` は*唯一の Python プロジェクト* (他は Go ベースの Kubernetes オペレーター):
 
@@ -69,7 +69,7 @@ GitHub README の shield.io badge は上記 hex 使用を推奨。
 - **Direct** — 可能な限り段落より bullet point
 - **Evidence-based** — 主張は benchmark / SLA / リンクを伴う
 - **Vendor-neutral** — GitLab Duo Enterprise と機能互換だが Duo 商標または proprietary code を embed しない
-- **License-aware** — Apache-2.0 + MIT/BSD/PSF 依存のみ; SaaS 表面での SSPL / コピーレフト拒否
+- **License-aware** — MIT/BSD/Apache-2.0/PSF 依存のみ; SaaS 表面での SSPL / コピーレフト拒否
 - **Deterministic-first** — MVP は外部 LLM 呼び出し 0; 社内 LLM ルーターは opt-in attach point
 
 **回避**:
@@ -89,7 +89,7 @@ GitHub README の shield.io badge は上記 hex 使用を推奨。
 
 # forgewise
 
-> **Apache-2.0 MCP-native developer intelligence — GitLab Duo Enterprise-class tools, locally executable, deterministic**
+> **MIT-licensed MCP-native developer intelligence — GitLab Duo Enterprise-class tools, locally executable, deterministic**
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"/></a>
@@ -121,7 +121,7 @@ GitHub README の shield.io badge は上記 hex 使用を推奨。
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>
 ```
 
@@ -129,7 +129,7 @@ GitHub README の shield.io badge は上記 hex 使用を推奨。
 
 README の shield.io badge 順序 (左→右、forgewise 適応):
 
-1. License (Apache-2.0)
+1. License (MIT)
 2. Python バージョン (3.11+)
 3. MCP protocol バージョン (`2025-03-26` / `2025-06-18`)
 4. PyPI パッケージ (release 後)
@@ -152,7 +152,7 @@ README の shield.io badge 順序 (左→右、forgewise 適応):
 
 ## 11. License + 著作権
 
-- License: [Apache-2.0](LICENSE)
+- License: [MIT](LICENSE)
 - Copyright: © 2026 keiailab contributors
 - Third-party 著作権表記: see [NOTICE](NOTICE) (現在未作成 — Python deps の license 表記は `pyproject.toml` の `[project.dependencies]` と `uv.lock` で追跡)
 
@@ -174,5 +174,5 @@ README の shield.io badge 順序 (左→右、forgewise 適応):
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>

@@ -172,4 +172,4 @@ token と project が存在しない場合、smoke は skip として終了し�
   <a href="https://github.com/keiailab/forgewise">forgewise</a>
 </p>
 
-<p align="center">© 2026 keiailab · Apache-2.0 · <a href="https://keiailab.com">keiailab.com</a></p>
+<p align="center">© 2026 keiailab · MIT · <a href="https://keiailab.com">keiailab.com</a></p>

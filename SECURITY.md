@@ -83,4 +83,4 @@ See `docs/security.md` for the full operational baseline. Highlights:
 
 ---
 
-*This policy is licensed under Apache-2.0 along with the rest of the project.*
+*This policy is licensed under MIT along with the rest of the project.*

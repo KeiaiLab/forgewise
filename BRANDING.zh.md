@@ -8,9 +8,9 @@
 
 ## 1. 身份
 
-**组织**: [keiailab](https://keiailab.com) — Kubernetes-native 数据平台操作器 (Apache-2.0, license-clean, vanilla-upstream 兼容).
+**组织**: [keiailab](https://keiailab.com) — Kubernetes-native 数据平台操作器 (MIT-licensed, license-clean, vanilla-upstream 兼容).
 
-**项目**: `forgewise` — Apache-2.0 MCP-native 开发者智能 — 开源、本地执行、以确定性分析实现 GitLab Duo Enterprise 类工具表面。
+**项目**: `forgewise` — MIT-licensed MCP-native 开发者智能 — 开源、本地执行、以确定性分析实现 GitLab Duo Enterprise 类工具表面。
 
 **Family**: 共享 keiailab 治理基线的 5 个 sister 项目之一。`forgewise` 是*唯一的 Python 项目* (其他是基于 Go 的 Kubernetes 操作器):
 
@@ -69,7 +69,7 @@ GitHub README 的 shield.io badge 推荐使用上述 hex。
 - **Direct** — 尽可能用 bullet point 而非段落
 - **Evidence-based** — 主张需附带 benchmark / SLA / 链接
 - **Vendor-neutral** — 功能上与 GitLab Duo Enterprise 兼容,但不嵌入 Duo 商标或 proprietary code
-- **License-aware** — 仅依赖 Apache-2.0 + MIT/BSD/PSF; 拒绝 SaaS 表面的 SSPL / 著佐权
+- **License-aware** — 仅依赖 MIT/BSD/Apache-2.0/PSF; 拒绝 SaaS 表面的 SSPL / 著佐权
 - **Deterministic-first** — MVP 零外部 LLM 调用; 内部 LLM 路由器是 opt-in attach point
 
 **避免**:
@@ -89,7 +89,7 @@ GitHub README 的 shield.io badge 推荐使用上述 hex。
 
 # forgewise
 
-> **Apache-2.0 MCP-native developer intelligence — GitLab Duo Enterprise-class tools, locally executable, deterministic**
+> **MIT-licensed MCP-native developer intelligence — GitLab Duo Enterprise-class tools, locally executable, deterministic**
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"/></a>
@@ -121,7 +121,7 @@ GitHub README 的 shield.io badge 推荐使用上述 hex。
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>
 ```
 
@@ -129,7 +129,7 @@ GitHub README 的 shield.io badge 推荐使用上述 hex。
 
 README 的 shield.io badge 顺序 (左→右,forgewise 适配):
 
-1. License (Apache-2.0)
+1. License (MIT)
 2. Python 版本 (3.11+)
 3. MCP protocol 版本 (`2025-03-26` / `2025-06-18`)
 4. PyPI 包 (release 后)
@@ -152,7 +152,7 @@ README 的 shield.io badge 顺序 (左→右,forgewise 适配):
 
 ## 11. License + 著作权
 
-- License: [Apache-2.0](LICENSE)
+- License: [MIT](LICENSE)
 - Copyright: © 2026 keiailab contributors
 - Third-party 著作权: see [NOTICE](NOTICE) (目前未编写 — Python deps 的 license 信息通过 `pyproject.toml` 的 `[project.dependencies]` 与 `uv.lock` 追踪)
 
@@ -174,5 +174,5 @@ README 的 shield.io badge 顺序 (左→右,forgewise 适配):
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>

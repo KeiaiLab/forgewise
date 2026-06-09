@@ -6,9 +6,9 @@ This document is the canonical reference for `forgewise` branding decisions. It 
 
 ## 1. Identity
 
-**Organization**: [keiailab](https://keiailab.com) — Kubernetes-native data platform operators (Apache-2.0, license-clean, vanilla-upstream compatible).
+**Organization**: [keiailab](https://keiailab.com) — Kubernetes-native data platform operators (MIT-licensed, license-clean, vanilla-upstream compatible).
 
-**Project**: `forgewise` — Apache-2.0 MCP-native developer intelligence — open-source, locally-executable, GitLab Duo Enterprise-class tool surface with deterministic analysis.
+**Project**: `forgewise` — MIT-licensed MCP-native developer intelligence — open-source, locally-executable, GitLab Duo Enterprise-class tool surface with deterministic analysis.
 
 **Family**: One of five sister projects sharing the keiailab governance baseline. `forgewise` is the *only Python project* (the others are Go-based Kubernetes operators):
 
@@ -67,7 +67,7 @@ GitHub README 의 shield.io badge 는 위 hex 사용 권장.
 - **Direct** — bullet-point over paragraph where possible
 - **Evidence-based** — claims include benchmark / SLA / link
 - **Vendor-neutral** — feature-compatible with GitLab Duo Enterprise but never embeds Duo trademark or proprietary code
-- **License-aware** — Apache-2.0 + MIT/BSD/PSF dependencies only; reject SSPL and copyleft on the SaaS surface
+- **License-aware** — MIT/BSD/Apache-2.0/PSF dependencies only; reject SSPL and copyleft on the SaaS surface
 - **Deterministic-first** — MVP makes zero external LLM calls; in-house LLM router is an opt-in attach point
 
 **Avoid**:
@@ -87,7 +87,7 @@ GitHub README 의 shield.io badge 는 위 hex 사용 권장.
 
 # forgewise
 
-> **Apache-2.0 MCP-native developer intelligence — GitLab Duo Enterprise-class tools, locally executable, deterministic**
+> **MIT-licensed MCP-native developer intelligence — GitLab Duo Enterprise-class tools, locally executable, deterministic**
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"/></a>
@@ -119,7 +119,7 @@ GitHub README 의 shield.io badge 는 위 hex 사용 권장.
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>
 ```
 
@@ -127,7 +127,7 @@ GitHub README 의 shield.io badge 는 위 hex 사용 권장.
 
 README 의 shield.io badge 순서 (좌→우, forgewise 적응):
 
-1. License (Apache-2.0)
+1. License (MIT)
 2. Python Version (3.11+)
 3. MCP protocol version (`2025-03-26` / `2025-06-18`)
 4. PyPI package (when released)
@@ -150,7 +150,7 @@ README 의 shield.io badge 순서 (좌→우, forgewise 적응):
 
 ## 11. License & Attribution
 
-- License: [Apache-2.0](LICENSE)
+- License: [MIT](LICENSE)
 - Copyright: © 2026 keiailab contributors
 - Third-party attributions: see [NOTICE](NOTICE) (현재 미작성 — Python deps 의 license 표기는 `pyproject.toml` 의 `[project.dependencies]` 와 `uv.lock` 으로 추적)
 
@@ -172,5 +172,5 @@ README 의 shield.io badge 순서 (좌→우, forgewise 적응):
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>

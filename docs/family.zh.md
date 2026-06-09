@@ -24,7 +24,7 @@
 
 所有 5 个项目即使技术栈不同,也收敛到相同的治理 primitive:
 
-- **Apache-2.0** 全栈 — 不使用 SSPL,SaaS 表面不使用著佐权
+- **MIT** 全栈 — 不使用 SSPL,SaaS 表面不使用著佐权
 - **本地 4 层 gate** — pre-commit + pre-push + Makefile + 审阅者证据 (`RFC-0002`, 永久禁用 GitHub Actions)
 - **i18n 4-lang** — README + canonical 文档以英文 / 한국어 / 日本語 / 中文 (cleanup supercycle Wave 4, 2026-05-21)
 - **DCO + Conventional Commits** — 每个 commit 都需 `Signed-off-by:` + `<type>(<scope>)?: <subject>` 格式
@@ -107,5 +107,5 @@
 </p>
 
 <p align="center">
-  © 2026 keiailab · <a href="../LICENSE">Apache-2.0</a> · <a href="https://keiailab.com">keiailab.com</a>
+  © 2026 keiailab · <a href="../LICENSE">MIT</a> · <a href="https://keiailab.com">keiailab.com</a>
 </p>
