@@ -18,6 +18,7 @@ ForgeWise 의 모든 주목할 만한 변경은 본 파일에 기록됩니다.
 
 ### Added
 
+- 설계 spec — forge 중립 `ForgeProvider` + read-only Harbor surface + OKF 지식 레이어 + 영속 장기작업 (MCP Tasks + Valkey/MongoDB). 정본 EN + KO: `docs/specs/2026-06-19-forge-okf-durable-design.md`. Status=Proposed; 33-tool 카탈로그 위 가산 (tool 무변경). source: ROADMAP v0.2+ (multi-instance / caching / SLSA L3).
 - `AGENTS.md` — Tier-3 프로젝트 override (Python 스택 — ruff / mypy strict / uv /
   pyproject.toml SSOT). 글로벌 Go 전제 standards 와의 일탈을 ADR 0001 로 정당화.
 - `CHANGELOG.md` — Keep a Changelog v1.1.0 + SemVer 양식.

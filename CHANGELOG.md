@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Design spec — forge-neutral `ForgeProvider` + read-only Harbor surface + OKF knowledge layer + durable long-running operations (MCP Tasks + Valkey/MongoDB). Canonical EN + KO: `docs/specs/2026-06-19-forge-okf-durable-design.md`. Status=Proposed; additive over the 33-tool catalog (no tool change). source: ROADMAP v0.2+ (multi-instance / caching / SLSA L3).
+
 ## [0.1.0] — 2026-05-28
 
 ### Added

@@ -44,14 +44,14 @@ maintainer 가용성에 따라 조정.
 - [ ] Duo Code Suggestions 컨텍스트 manager
 
 ### 운영
-- [ ] caching layer (Redis 옵션)
+- [ ] caching layer (Redis 옵션) — 설계 [forge-okf-durable §4.4/§5](docs/specs/2026-06-19-forge-okf-durable-design.md) (Valkey durable backend)
 - [ ] rate limit 가시화
-- [ ] multi-instance 지원 (GitLab + GitHub + Bitbucket 통합)
+- [ ] multi-instance 지원 (GitLab + GitHub + Bitbucket 통합) — 설계 [forge-okf-durable §4.1 ForgeProvider](docs/specs/2026-06-19-forge-okf-durable-design.md)
 
 ### 보안
 - [ ] OIDC + SAML SSO 옵션
 - [ ] secret scanning hook (lefthook detect-secrets)
-- [ ] supply chain SLSA L3 (cosign keyless 서명)
+- [ ] supply chain SLSA L3 (cosign keyless 서명) — 설계 [forge-okf-durable §4.2 Harbor surface](docs/specs/2026-06-19-forge-okf-durable-design.md)
 
 ## 🌐 다국어 (S4 sub-cycle)
 
@@ -81,6 +81,7 @@ operator + operator-commons + forgewise). v3.x-stable 선언은 5 repo *모두*
 
 - [README](README.md) — 현재 기능
 - [CHANGELOG](CHANGELOG.md) — 머지된 변경
+- [설계: Forge+OKF+영속](docs/specs/2026-06-19-forge-okf-durable-design.md) — forge 중립 / Harbor / OKF / 영속 장기작업 설계 정본 (Proposed)
 - [AGENTS](AGENTS.md) — Tier-3 프로젝트 컨벤션
 - [keiailab family](docs/family.md) — operator 4 + ForgeWise 의 가족 구성
 - [v3.x-stable 선언](https://github.com/keiailab/operator-commons/blob/main/docs/specs/2026-05-21-v3x-stable-declaration-design.md) — family 차원의 release 조건
